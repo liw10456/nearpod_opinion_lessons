@@ -5,42 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Writing Checklist Activity</title>
     <style>
-        /* --- 1. 字體嵌入設定 (Embed Fonts) --- */
-        
-        /* 定義 Century Gothic 一般體 */
-        @font-face { font-family: 'Century Gothic'; src: url('centurygothic.ttf') format('truetype'); font-weight: normal; }
-        @font-face { font-family: 'Century Gothic'; src: url('centurygothic_bold.ttf') format('truetype'); font-weight: bold; }
-        body { font-family: 'Century Gothic', sans-serif; background-color: #f9f9f9; display: flex; flex-direction: column; align-items: center; padding: 20px; user-select: none; }
-        .serif-I { font-family: 'Times New Roman', Times, serif; }
+        /* --- 1. Font Embedding --- */
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic_bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
 
-        /* --- 2. 全域樣式 --- */
+        /* --- 2. Global Styles --- */
         body {
-            /* 優先使用嵌入的 Century Gothic，若讀取失敗則退回 sans-serif */
             font-family: 'Century Gothic', sans-serif;
             background-color: #f9f9f9;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            user-select: none; /* 防止選取文字干擾點擊 */
+            user-select: none;
         }
 
-        /* 特殊需求：大寫 I 使用 Times New Roman (有襯線) */
+        /* Serif 'I' for "Identifying" and "Informational" */
         .serif-I {
             font-family: 'Times New Roman', Times, serif;
         }
 
         h2 {
-            color: #000080; /* 深藍色 */
+            color: #000080; /* Navy Blue */
             text-align: center;
             max-width: 900px;
             margin-bottom: 25px;
-            font-weight: normal; /* Century Gothic 一般體就很清晰 */
+            font-weight: normal;
             font-size: 24px;
             line-height: 1.4;
         }
 
-        /* --- 3. 表格區域 (Drop Zones) --- */
+        /* --- 3. Login Overlay Styles --- */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .login-input {
+            font-size: 20px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Century Gothic', sans-serif;
+        }
+
+        .login-btn {
+            font-size: 20px;
+            padding: 10px 30px;
+            background: #000080;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Century Gothic', sans-serif;
+        }
+        .login-btn:hover { background-color: #000060; }
+
+        /* --- 4. Checklist Grid Area --- */
         .checklist-container {
             width: 100%;
             max-width: 850px;
@@ -58,14 +106,12 @@
             background-color: #fff;
         }
 
-        /* 網格系統：2行5列 */
         .grid-board {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(2, 140px);
         }
 
-        /* 格子樣式 */
         .grid-slot {
             border: 1px solid #ccc;
             display: flex;
@@ -73,7 +119,7 @@
             align-items: center;
             background-color: #fff;
             position: relative;
-            cursor: pointer; /* 顯示手指鼠標 */
+            cursor: pointer;
             transition: background-color 0.2s;
         }
 
@@ -81,7 +127,7 @@
             background-color: #f7f7f7;
         }
 
-        /* --- 4. 底部選項區域 (Source Area) --- */
+        /* --- 5. Source/Options Area --- */
         .options-container {
             display: flex;
             justify-content: center;
@@ -96,11 +142,11 @@
             border: 2px dashed #ccc;
         }
 
-        /* --- 5. 卡片樣式 (Draggable Items) --- */
+        /* --- 6. Card Styles --- */
         .card {
             width: 140px;
             height: 125px;
-            border: 3px solid black; /* 加粗黑框 */
+            border: 3px solid black;
             background-color: white;
             display: flex;
             flex-direction: column;
@@ -113,9 +159,8 @@
             transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s;
         }
 
-        /* 卡片被選取時的特效 (Click State) */
         .card.selected {
-            border-color: #ff9900; /* 亮橘色外框 */
+            border-color: #ff9900;
             box-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
             transform: scale(1.05);
             z-index: 10;
@@ -127,7 +172,7 @@
             text-align: center;
             margin-bottom: 8px;
             line-height: 1.1;
-            pointer-events: none; /* 讓點擊穿透 */
+            pointer-events: none;
         }
 
         .card-visual {
@@ -139,71 +184,24 @@
             pointer-events: none;
         }
 
-        /* --- 卡片內部圖案樣式 --- */
-        /* Capital Letter: H T L */
-        .text-visual { 
-            font-size: 28px; 
-            font-weight: bold; 
-            letter-spacing: 5px; 
-        }
+        /* --- Specific Card Visuals --- */
+        .text-visual { font-size: 28px; font-weight: bold; letter-spacing: 5px; }
+        .topic-visual { font-size: 45px; }
 
-        /* Organization: 線條圖 */
-        .lines-visual {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            width: 70%;
-        }
-        .lines-row {
-            display: flex;
-            gap: 5px;
-        }
-        .lines-bar {
-            height: 4px;
-            background-color: #ccc;
-            border-radius: 2px;
-        }
-        .lines-dot {
-            width: 6px;
-            height: 6px;
-            background-color: #8accff; /* 淺藍色點點 */
-            border-radius: 50%;
-        }
+        /* Lines Visual (Organization) */
+        .lines-visual { display: flex; flex-direction: column; gap: 6px; width: 70%; }
+        .lines-row { display: flex; gap: 5px; }
+        .lines-bar { height: 4px; background-color: #ccc; border-radius: 2px; }
+        .lines-dot { width: 6px; height: 6px; background-color: #8accff; border-radius: 50%; }
 
-        /* Complete Sentences: 虛線框與文字 */
-        .sentence-box {
-            border: 1px solid #333;
-            width: 90%;
-            height: 80%;
-            padding: 4px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-        }
-        .sentence-line-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .sentence-text {
-            font-size: 11px;
-            color: #999;
-            margin-bottom: -2px; /* 貼近底線 */
-            padding-left: 2px;
-        }
-        .sentence-line {
-            border-bottom: 1px dashed #999;
-            width: 100%;
-            height: 1px;
-        }
-        .sentence-line.solid {
-            border-bottom: 1px solid #333; /* 實線底 */
-            margin-top: 1px;
-        }
+        /* Sentence Box Visual */
+        .sentence-box { border: 1px solid #333; width: 90%; height: 80%; padding: 4px; display: flex; flex-direction: column; justify-content: space-around; }
+        .sentence-line-group { display: flex; flex-direction: column; }
+        .sentence-text { font-size: 11px; color: #999; margin-bottom: -2px; padding-left: 2px; }
+        .sentence-line { border-bottom: 1px dashed #999; width: 100%; height: 1px; }
+        .sentence-line.solid { border-bottom: 1px solid #333; margin-top: 1px; }
 
-        /* On Topic: 對話框 */
-        .topic-visual {
-            font-size: 45px;
-        }
+        /* --- 7. Next Button --- */
         .next-activity-btn {
             margin-top: 30px;
             padding: 15px 40px;
@@ -213,28 +211,12 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            display: none; /* 預設隱藏，直到有互動 */
+            display: none; /* Hidden by default */
+            font-family: 'Century Gothic', sans-serif;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        
-        /* 新增：登入框樣式 */
-        .login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 999;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .login-box {
-            background: white; padding: 40px; border-radius: 10px; text-align: center;
-        }
-        .login-input { font-size: 20px; padding: 10px; margin-bottom: 20px; }
-        .login-btn { font-size: 20px; padding: 10px 30px; background: #000080; color: white; border: none; cursor: pointer; }
-        .checklist-container { width: 100%; max-width: 850px; background: white; border: 1px solid #999; margin-bottom: 25px; }
-        .checklist-header { text-align: center; font-weight: bold; padding: 12px; border-bottom: 1px solid #999; font-size: 1.2em; }
-        .grid-board { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(2, 140px); }
-        .grid-slot { border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; background-color: #fff; cursor: pointer; }
-        .options-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; width: 100%; max-width: 850px; min-height: 160px; padding: 20px; background-color: #f0f0f0; border-radius: 12px; }
-        .card { width: 140px; height: 125px; border: 3px solid black; background-color: white; display: flex; flex-direction: column; align-items: center; padding: 8px; cursor: pointer; }
-        .card.selected { border-color: #ff9900; transform: scale(1.05); }
-        .card-visual { font-size: 30px; }
+        .next-activity-btn:hover { background-color: #000060; }
+
     </style>
 </head>
 <body>
@@ -248,7 +230,7 @@
         </div>
     </div>
 
-    <h2>Today we will work on <span class="serif-I">I</span>dentifying the parts of an <span class="serif-I">I</span>nformational writing piece...</h2>
+    <h2>Today we will work on <span class="serif-I">I</span>dentifying the parts of an <span class="serif-I">I</span>nformational writing piece so that our writing is organized and on topic.</h2>
 
     <div class="checklist-container">
         <div class="checklist-header">Writing Checklist</div>
@@ -267,34 +249,74 @@
     </div>
 
     <div class="options-container" id="source-area" onclick="returnCardToSource()">
-        <div class="card" id="card-capital" onclick="selectCard(event, this)"><div class="card-title">Capital Letter</div><div class="card-visual">H T L</div></div>
-        <div class="card" id="card-org" onclick="selectCard(event, this)"><div class="card-title">Organization</div><div class="card-visual">___</div></div>
-        <div class="card" id="card-sent" onclick="selectCard(event, this)"><div class="card-title">Complete Sentences</div><div class="card-visual">Look at...</div></div>
-        <div class="card" id="card-topic" onclick="selectCard(event, this)"><div class="card-title">On Topic</div><div class="card-visual">🗣️⭐️</div></div>
-        <div class="card" id="card-punc" onclick="selectCard(event, this)"><div class="card-title">Punctuation</div><div class="card-visual">. ! ?</div></div>
+        
+        <div class="card" onclick="selectCard(event, this)">
+            <div class="card-title">Capital Letter</div>
+            <div class="card-visual text-visual">H T L</div>
+        </div>
+
+        <div class="card" onclick="selectCard(event, this)">
+            <div class="card-title">Organization</div>
+            <div class="card-visual lines-visual">
+                <div class="lines-bar" style="width: 100%; background: #ddd;"></div>
+                <div class="lines-row"><div class="lines-dot"></div><div class="lines-bar" style="width: 80%;"></div></div>
+                <div class="lines-row"><div class="lines-dot"></div><div class="lines-bar" style="width: 80%;"></div></div>
+                <div class="lines-row"><div class="lines-dot"></div><div class="lines-bar" style="width: 80%;"></div></div>
+            </div>
+        </div>
+
+        <div class="card" onclick="selectCard(event, this)">
+            <div class="card-title">Complete Sentences</div>
+            <div class="card-visual">
+                <div class="sentence-box">
+                    <div class="sentence-line-group">
+                        <div class="sentence-text">Look at</div>
+                        <div class="sentence-line"></div>
+                        <div class="sentence-line solid"></div>
+                    </div>
+                    <div class="sentence-line-group">
+                        <div class="sentence-text">the cat.</div>
+                        <div class="sentence-line"></div>
+                        <div class="sentence-line solid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" onclick="selectCard(event, this)">
+            <div class="card-title">On Topic</div>
+            <div class="card-visual topic-visual">🗣️⭐️</div>
+        </div>
+
+        <div class="card" onclick="selectCard(event, this)">
+            <div class="card-title">Punctuation</div>
+            <div class="card-visual text-visual">. <span class="serif-I">!</span> ?</div>
+        </div>
+
     </div>
 
     <button class="next-activity-btn" id="next-btn" onclick="goToNext()">Next Activity ➜</button>
 
     <script>
-        // *** 設定：請貼上你的 Google Apps Script 網址 ***
+        // *** GOOGLE SCRIPT URL ***
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec'; 
 
         let selectedCard = null;
         let studentId = "Anonymous";
 
+        // --- 1. Session Start ---
         function startSession() {
             const input = document.getElementById('student-id').value;
             if(input) {
                 studentId = input;
-                // 存入 LocalStorage 供後續頁面使用
+                // Save to LocalStorage for next pages
                 localStorage.setItem('studentId', studentId);
                 document.getElementById('login-overlay').style.display = 'none';
                 logData('Main', 'Session Start', 'Login');
             }
         }
 
-        // 傳送數據到 Google Sheet 的通用函數
+        // --- 2. Data Logging Function ---
         function logData(activity, action, result) {
             const data = { studentId: studentId, activity: activity, action: action, result: result };
             fetch(SCRIPT_URL, {
@@ -305,32 +327,43 @@
             }).catch(err => console.error('Error logging data', err));
         }
 
+        // --- 3. Interaction Logic ---
         function selectCard(event, element) {
             event.stopPropagation();
+            // If clicking the same card, deselect
             if (selectedCard === element) {
                 element.classList.remove('selected');
                 selectedCard = null;
                 return;
             }
-            if (selectedCard) selectedCard.classList.remove('selected');
+            // If clicking a different card, deselect previous
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
+            // Select new card
             selectedCard = element;
             selectedCard.classList.add('selected');
         }
 
         function placeCard(slot) {
             if (selectedCard) {
-                // Log action
+                // Log action to Google Sheet
                 logData('Checklist', 'Place Card', selectedCard.innerText.split('\n')[0]);
                 
+                // If slot is occupied, move existing item back to source
                 if (slot.children.length > 0) {
                     const existingCard = slot.firstElementChild;
                     document.getElementById('source-area').appendChild(existingCard);
                 }
+                
+                // Move card to slot
                 slot.appendChild(selectedCard);
+                
+                // Reset Selection
                 selectedCard.classList.remove('selected');
                 selectedCard = null;
                 
-                // 顯示下一步按鈕
+                // Show Next Button once user starts interacting
                 document.getElementById('next-btn').style.display = 'block';
             }
         }
@@ -346,13 +379,16 @@
             }
         }
 
+        // --- 4. Navigation ---
         function goToNext() {
             logData('Checklist', 'Navigation', 'Go to Topic Sentence');
+            // Navigate to the next HTML file
             window.location.href = 'topic_sentence.html';
         }
         
-        // Check for existing login
+        // --- 5. Initialization ---
         window.onload = function() {
+            // Check if user is already logged in from a previous session (optional)
             if(localStorage.getItem('studentId')) {
                 studentId = localStorage.getItem('studentId');
                 document.getElementById('login-overlay').style.display = 'none';
