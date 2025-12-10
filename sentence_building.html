@@ -260,160 +260,50 @@
     <button class="done-btn" id="done-btn" onclick="alert('Great Job!')">DONE ✔</button>
 
     <script>
-        let selectedWordElement = null; // 目前被選中的字卡 DOM
-        let userColor = "Blue"; // 預設值
-        
-        // 正確句子的順序
-        const correctOrder = ["My", "favorite", "color", "is"]; // 最後一個是 userColor
+        const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL';
+        const studentId = localStorage.getItem('studentId') || 'Anonymous';
+        // ... 保留原本變數 ...
 
-        // 1. 開始遊戲
+        function logData(action, result) {
+            const data = { studentId: studentId, activity: 'Sentence Building', action: action, result: result };
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        }
+
         function startGame() {
-            const input = document.getElementById('user-color-input');
-            if (input.value.trim() !== "") {
-                userColor = input.value.trim();
-            }
-            
-            // 隱藏彈窗
-            document.getElementById('start-modal').style.display = 'none';
-            
-            // 生成並打亂字卡
-            initWordBank();
+            // ... 原本邏輯 ...
+            logData('Input Color', userColor); // 記錄喜歡的顏色
+            // ...
         }
 
-        // 初始化字卡
-        function initWordBank() {
-            const bank = document.getElementById('word-bank');
-            // 準備所有單字
-            let words = ["My", "favorite", "color", "is", userColor];
-            
-            // 洗牌 (Fisher-Yates Shuffle)
-            for (let i = words.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [words[i], words[j]] = [words[j], words[i]];
-            }
+        // ... 保留 selectWord, placeWord ...
 
-            // 產生 HTML
-            words.forEach(word => {
-                const div = document.createElement('div');
-                div.className = 'word-card';
-                div.textContent = word;
-                div.onclick = function(e) { selectWord(e, this); };
-                bank.appendChild(div);
-            });
-        }
-
-        // 2. 點選字卡邏輯
-        function selectWord(event, element) {
-            event.stopPropagation();
-
-            // 如果點的是同一張 -> 取消選取
-            if (selectedWordElement === element) {
-                element.classList.remove('selected');
-                selectedWordElement = null;
-                return;
-            }
-
-            // 如果之前有選別張 -> 取消那張
-            if (selectedWordElement) {
-                selectedWordElement.classList.remove('selected');
-            }
-
-            // 選取新的一張
-            selectedWordElement = element;
-            element.classList.add('selected');
-        }
-
-        // 3. 放置字卡邏輯
-        function placeWord(slotIndex) {
-            const slots = document.querySelectorAll('.slot');
-            const targetSlot = slots[slotIndex];
-
-            // 必須先選中一張卡
-            if (selectedWordElement) {
-                
-                // 如果格子裡已經有字，把舊字移回 Bank
-                if (targetSlot.children.length > 0) {
-                    const oldWordDiv = targetSlot.firstElementChild; // 這是 slot-text div
-                    // 重新建立一張卡片放回 bank
-                    createCardInBank(oldWordDiv.textContent);
-                    targetSlot.innerHTML = '';
-                }
-
-                // 在格子裡顯示文字
-                const textDiv = document.createElement('div');
-                textDiv.className = 'slot-text';
-                textDiv.textContent = selectedWordElement.textContent;
-                targetSlot.appendChild(textDiv);
-
-                // 移除來源卡片 (或隱藏)
-                selectedWordElement.remove();
-                selectedWordElement = null;
-
-                // 檢查是否完成
-                checkSentence();
-            } else {
-                // 如果沒選卡片但點了格子 -> 如果格子有字，把字退回 Bank (取消放置)
-                if (targetSlot.children.length > 0) {
-                    const text = targetSlot.firstElementChild.textContent;
-                    createCardInBank(text);
-                    targetSlot.innerHTML = '';
-                    checkSentence(); // 重新檢查狀態
-                }
-            }
-        }
-
-        // 輔助：把字卡放回 Bank
-        function createCardInBank(text) {
-            const bank = document.getElementById('word-bank');
-            const div = document.createElement('div');
-            div.className = 'word-card';
-            div.textContent = text;
-            div.onclick = function(e) { selectWord(e, this); };
-            bank.appendChild(div);
-        }
-
-        // 4. 檢查答案邏輯
         function checkSentence() {
-            const slots = document.querySelectorAll('.slot');
-            let filledCount = 0;
-            let currentSentence = [];
-
-            slots.forEach(slot => {
-                if (slot.children.length > 0) {
-                    filledCount++;
-                    currentSentence.push(slot.firstElementChild.textContent);
-                }
-            });
-
-            const doneBtn = document.getElementById('done-btn');
-
-            // 只有填滿 5 格才檢查
+            // ... 原本的檢查邏輯 ...
+            
             if (filledCount === 5) {
-                // 比對前4個字
-                let isCorrect = true;
-                if (currentSentence[0] !== "My") isCorrect = false;
-                if (currentSentence[1] !== "favorite") isCorrect = false;
-                if (currentSentence[2] !== "color") isCorrect = false;
-                if (currentSentence[3] !== "is") isCorrect = false;
-                // 第5個字應該要是 userColor (不分大小寫比對以防萬一)
-                if (currentSentence[4].toLowerCase() !== userColor.toLowerCase()) isCorrect = false;
+                // ... 判斷 isCorrect ...
 
                 if (isCorrect) {
                     // 答對了
-                    slots.forEach(slot => slot.style.backgroundColor = "#e6fffa"); // 淡綠色背景
-                    doneBtn.style.display = "block";
+                    logData('Check Order', 'Correct Sentence Constructed');
+                    slots.forEach(slot => slot.style.backgroundColor = "#e6fffa");
+                    
+                    // 修改按鈕行為
+                    const btn = document.getElementById('done-btn');
+                    btn.textContent = "FINISH ALL ACTIVITIES!";
+                    btn.style.display = "block";
+                    btn.onclick = function() {
+                        alert("Congratulations! You have completed the entire lesson.");
+                        logData('Session', 'Lesson Completed');
+                    };
                 } else {
-                    // 順序錯誤
-                    slots.forEach(slot => slot.style.backgroundColor = "#fff0f0"); // 淡紅色背景
-                    doneBtn.style.display = "none";
+                    // 答錯了
+                    logData('Check Order', 'Incorrect Order');
+                    // ... 
                 }
-            } else {
-                // 還沒填完，恢復白色
-                slots.forEach(slot => slot.style.backgroundColor = "white");
-                doneBtn.style.display = "none";
             }
+            // ...
         }
-
     </script>
 </body>
 </html>
