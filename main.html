@@ -1,43 +1,62 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寫作清單互動練習</title>
+    <title>Writing Checklist Activity</title>
     <style>
-        /* --- 1. 字體設定 --- */
+        /* --- 1. 字體嵌入設定 (Embed Fonts) --- */
+        
+        /* 定義 Century Gothic 一般體 */
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 定義 Century Gothic 粗體 */
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic_bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        /* --- 2. 全域樣式 --- */
         body {
-            /* 主要字體設定為 Century Gothic，如果系統沒有則使用類似的無襯線體 */
-            font-family: 'Century Gothic', 'Avant Garde', 'Verdana', sans-serif;
+            /* 優先使用嵌入的 Century Gothic，若讀取失敗則退回 sans-serif */
+            font-family: 'Century Gothic', sans-serif;
             background-color: #f9f9f9;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            user-select: none; /* 防止點擊時選取到文字 */
+            user-select: none; /* 防止選取文字干擾點擊 */
         }
 
-        /* 針對大寫 I 的特殊樣式類別 */
+        /* 特殊需求：大寫 I 使用 Times New Roman (有襯線) */
         .serif-I {
             font-family: 'Times New Roman', Times, serif;
         }
 
         h2 {
-            color: #000080;
+            color: #000080; /* 深藍色 */
             text-align: center;
             max-width: 900px;
-            margin-bottom: 20px;
-            font-weight: normal; /* Century Gothic 預設就很粗，標題不需要太重 */
+            margin-bottom: 25px;
+            font-weight: normal; /* Century Gothic 一般體就很清晰 */
+            font-size: 24px;
             line-height: 1.4;
         }
 
-        /* --- 2. 表格區域 --- */
+        /* --- 3. 表格區域 (Drop Zones) --- */
         .checklist-container {
             width: 100%;
             max-width: 850px;
             background: white;
             border: 1px solid #999;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .checklist-header {
@@ -45,17 +64,18 @@
             font-weight: bold;
             padding: 12px;
             border-bottom: 1px solid #999;
-            font-size: 1.3em;
+            font-size: 1.2em;
+            background-color: #fff;
         }
 
-        /* 網格系統 */
+        /* 網格系統：2行5列 */
         .grid-board {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 列 */
-            grid-template-rows: repeat(2, 140px);  /* 2 行，高度稍微加高 */
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 140px);
         }
 
-        /* 格子 (Drop Zone) */
+        /* 格子樣式 */
         .grid-slot {
             border: 1px solid #ccc;
             display: flex;
@@ -63,65 +83,61 @@
             align-items: center;
             background-color: #fff;
             position: relative;
+            cursor: pointer; /* 顯示手指鼠標 */
             transition: background-color 0.2s;
-            cursor: pointer; /* 讓滑鼠變成手指形狀，提示可點擊 */
         }
 
-        /* 當卡片被選取時，格子顯示可放置的提示 */
-        .grid-slot.highlight-target {
-            background-color: #eef9ff;
-        }
-        
         .grid-slot:hover {
-            background-color: #f0f0f0; /* 滑鼠滑過效果 */
+            background-color: #f7f7f7;
         }
 
-        /* --- 3. 底部選項區域 --- */
+        /* --- 4. 底部選項區域 (Source Area) --- */
         .options-container {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
             width: 100%;
             max-width: 850px;
-            min-height: 150px;
-            padding: 15px;
-            background-color: #eee; /* 稍微深一點的背景區分區域 */
-            border-radius: 10px;
-            cursor: pointer; /* 點擊這裡也可以把卡片放回來 */
+            min-height: 160px;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 12px;
+            border: 2px dashed #ccc;
         }
 
-        /* --- 4. 卡片樣式 (可點擊物件) --- */
+        /* --- 5. 卡片樣式 (Draggable Items) --- */
         .card {
             width: 140px;
-            height: 120px;
-            border: 3px solid black;
+            height: 125px;
+            border: 3px solid black; /* 加粗黑框 */
             background-color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 5px;
+            padding: 8px;
             box-sizing: border-box;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.1s, box-shadow 0.2s, border-color 0.2s;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.1);
             cursor: pointer;
+            transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s;
         }
 
-        /* 卡片被選取時的狀態 (重要) */
+        /* 卡片被選取時的特效 (Click State) */
         .card.selected {
-            border-color: #ff9900; /* 亮橘色邊框 */
+            border-color: #ff9900; /* 亮橘色外框 */
             box-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
-            transform: scale(1.05); /* 稍微放大 */
-            z-index: 100;
+            transform: scale(1.05);
+            z-index: 10;
         }
 
         .card-title {
             font-weight: bold;
             font-size: 15px;
             text-align: center;
-            margin-bottom: 5px;
-            pointer-events: none; /* 讓點擊穿透文字直接點到卡片 */
+            margin-bottom: 8px;
+            line-height: 1.1;
+            pointer-events: none; /* 讓點擊穿透 */
         }
 
         .card-visual {
@@ -133,15 +149,72 @@
             pointer-events: none;
         }
 
-        /* 模擬圖片樣式 */
-        .text-visual { font-size: 24px; font-weight: bold; letter-spacing: 3px; }
-        .lines-visual { font-size: 12px; color: #ccc; line-height: 8px; width: 60%; text-align: center;}
-        .lines-visual span { display:block; border-bottom: 2px solid #ccc; margin-bottom: 6px; height: 2px;}
-        
-        /* 讓 Complete Sentences 的框框看起來像學習單 */
-        .sentence-box { border: 1px dashed #999; width: 90%; height: 70%; display: flex; flex-direction: column; justify-content: center; padding: 2px;}
-        .sentence-line { border-bottom: 1px dashed #ccc; width: 100%; height: 20px; margin-bottom: 5px;}
-        
+        /* --- 卡片內部圖案樣式 --- */
+        /* Capital Letter: H T L */
+        .text-visual { 
+            font-size: 28px; 
+            font-weight: bold; 
+            letter-spacing: 5px; 
+        }
+
+        /* Organization: 線條圖 */
+        .lines-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 70%;
+        }
+        .lines-row {
+            display: flex;
+            gap: 5px;
+        }
+        .lines-bar {
+            height: 4px;
+            background-color: #ccc;
+            border-radius: 2px;
+        }
+        .lines-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #8accff; /* 淺藍色點點 */
+            border-radius: 50%;
+        }
+
+        /* Complete Sentences: 虛線框與文字 */
+        .sentence-box {
+            border: 1px solid #333;
+            width: 90%;
+            height: 80%;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        .sentence-line-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .sentence-text {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: -2px; /* 貼近底線 */
+            padding-left: 2px;
+        }
+        .sentence-line {
+            border-bottom: 1px dashed #999;
+            width: 100%;
+            height: 1px;
+        }
+        .sentence-line.solid {
+            border-bottom: 1px solid #333; /* 實線底 */
+            margin-top: 1px;
+        }
+
+        /* On Topic: 對話框 */
+        .topic-visual {
+            font-size: 45px;
+        }
+
     </style>
 </head>
 <body>
@@ -176,7 +249,16 @@
         <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Organization</div>
             <div class="card-visual lines-visual">
-                <span></span><span></span><span></span><span></span>
+                <div class="lines-bar" style="width: 100%; background: #ddd;"></div>
+                <div class="lines-row">
+                    <div class="lines-dot"></div><div class="lines-bar" style="width: 80%;"></div>
+                </div>
+                <div class="lines-row">
+                    <div class="lines-dot"></div><div class="lines-bar" style="width: 80%;"></div>
+                </div>
+                <div class="lines-row">
+                    <div class="lines-dot"></div><div class="lines-bar" style="width: 80%;"></div>
+                </div>
             </div>
         </div>
 
@@ -184,17 +266,23 @@
             <div class="card-title">Complete Sentences</div>
             <div class="card-visual">
                 <div class="sentence-box">
-                    <div style="font-size:10px; color:#aaa;">Look at...</div>
-                    <div class="sentence-line"></div>
-                    <div style="font-size:10px; color:#aaa;">the cat.</div>
-                    <div class="sentence-line"></div>
+                    <div class="sentence-line-group">
+                        <div class="sentence-text">Look at</div>
+                        <div class="sentence-line"></div>
+                        <div class="sentence-line solid"></div>
+                    </div>
+                    <div class="sentence-line-group">
+                        <div class="sentence-text">the cat.</div>
+                        <div class="sentence-line"></div>
+                        <div class="sentence-line solid"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">On Topic</div>
-            <div class="card-visual" style="font-size: 40px;">🗣️⭐️</div>
+            <div class="card-visual topic-visual">🗣️⭐️</div>
         </div>
 
         <div class="card" onclick="selectCard(event, this)">
@@ -205,36 +293,36 @@
     </div>
 
     <script>
-        // 全域變數：追蹤目前被選取的卡片
+        // 記錄目前被選取的卡片
         let selectedCard = null;
 
-        // 1. 點擊卡片的功能
+        // 1. 選取卡片 (點擊卡片時觸發)
         function selectCard(event, element) {
-            // 阻止事件冒泡 (避免觸發底層容器的點擊事件)
+            // 阻止點擊事件冒泡 (避免觸發底層容器的事件)
             event.stopPropagation();
 
-            // 如果點擊的是已經選取的卡片 -> 取消選取
+            // 如果點擊的是「已經選取」的卡片 -> 取消選取
             if (selectedCard === element) {
                 element.classList.remove('selected');
                 selectedCard = null;
                 return;
             }
 
-            // 如果之前有選取別的卡片 -> 先取消那張的樣式
+            // 如果之前有選取別的卡片 -> 先移除上一張的選取樣式
             if (selectedCard) {
                 selectedCard.classList.remove('selected');
             }
 
-            // 選取當前這張
+            // 設定新的選取卡片
             selectedCard = element;
             selectedCard.classList.add('selected');
         }
 
-        // 2. 點擊格子的功能 (放置卡片)
+        // 2. 放置卡片 (點擊格子時觸發)
         function placeCard(slot) {
-            // 只有當「已經選取了一張卡片」且「格子不同於卡片目前位置」時才動作
+            // 只有在「有選取卡片」的時候才執行
             if (selectedCard) {
-                // 如果格子裡已經有東西，先將該東西移回底部 (或者你可以選擇交換，這裡採用移回底部策略)
+                // 如果格子裡已經有卡片，先把舊的移回下方區域
                 if (slot.children.length > 0) {
                     const existingCard = slot.firstElementChild;
                     document.getElementById('source-area').appendChild(existingCard);
@@ -243,23 +331,23 @@
                 // 將選取的卡片移動到這個格子
                 slot.appendChild(selectedCard);
 
-                // 移動完後，移除選取狀態
+                // 移動完成後，移除選取狀態
                 selectedCard.classList.remove('selected');
                 selectedCard = null;
             }
         }
 
-        // 3. 點擊底部區域的功能 (退回卡片)
+        // 3. 退回卡片 (點擊下方灰色區域時觸發)
         function returnCardToSource() {
             if (selectedCard) {
                 const sourceArea = document.getElementById('source-area');
                 
-                // 只有當卡片不在底部區域時，才執行移動
+                // 如果卡片不在下方區域，才將其移動回來
                 if (!sourceArea.contains(selectedCard)) {
                     sourceArea.appendChild(selectedCard);
                 }
                 
-                // 無論如何都取消選取狀態
+                // 取消選取狀態
                 selectedCard.classList.remove('selected');
                 selectedCard = null;
             }
