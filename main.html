@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寫作清單拖放練習</title>
+    <style>
+        /* --- CSS 樣式區 --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #000080; /* 深藍色標題 */
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+
+        /* 表格容器 */
+        .checklist-container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border: 1px solid #ccc;
+            margin-bottom: 30px;
+        }
+
+        .checklist-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            font-size: 1.2em;
+        }
+
+        /* 網格系統：2行5列 */
+        .grid-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 列 */
+            grid-template-rows: repeat(2, 120px);  /* 2 行，每行高度固定 */
+        }
+
+        /* 每一個格子 (Drop Zone) */
+        .grid-slot {
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        /* 當拖曳物件經過格子時的變色效果 */
+        .grid-slot.drag-over {
+            background-color: #e6f7ff;
+            border: 2px dashed #000080;
+        }
+
+        /* 底部選項區 (Source Zone) */
+        .options-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 90%;
+            max-width: 800px;
+            min-height: 130px; /* 確保有高度可以放回 */
+            padding: 10px;
+            border: 1px dashed #ccc; /* 虛線框表示這裡也是放置區 */
+            border-radius: 8px;
+        }
+
+        /* 卡片本體 (Draggable Item) */
+        .card {
+            width: 130px;
+            height: 110px;
+            border: 3px solid black; /* 加粗黑框 */
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            cursor: grab;
+            user-select: none;
+            padding: 5px;
+            box-sizing: border-box;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        /* 模擬圖片區域 (實際使用時請替換成 <img src="...">) */
+        .card-visual {
+            font-size: 40px; 
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 針對不同卡片的微調 */
+        .card-visual.text-style { font-family: monospace; font-weight: bold; }
+        .card-visual.lines { font-size: 20px; color: #aaa; text-align: left; line-height: 1.2;}
+        
+    </style>
+</head>
+<body>
+
+    <h2>Let's set our writing goal by placing the organization and on topic symbols on the writing checklist.</h2>
+
+    <div class="checklist-container">
+        <div class="checklist-header">Writing Checklist</div>
+        <div class="grid-board" id="target-grid">
+            <div class="grid-slot" data-slot-id="1"></div>
+            <div class="grid-slot" data-slot-id="2"></div>
+            <div class="grid-slot" data-slot-id="3"></div>
+            <div class="grid-slot" data-slot-id="4"></div>
+            <div class="grid-slot" data-slot-id="5"></div>
+            <div class="grid-slot" data-slot-id="6"></div>
+            <div class="grid-slot" data-slot-id="7"></div>
+            <div class="grid-slot" data-slot-id="8"></div>
+            <div class="grid-slot" data-slot-id="9"></div>
+            <div class="grid-slot" data-slot-id="10"></div>
+        </div>
+    </div>
+
+    <div class="options-container" id="source-container">
+        
+        <div class="card" draggable="true" id="card-capital">
+            <div class="card-title">Capital Letter</div>
+            <div class="card-visual text-style">H T L</div>
+        </div>
+
+        <div class="card" draggable="true" id="card-organization">
+            <div class="card-title">Organization</div>
+            <div class="card-visual lines">
+                ___ ___<br>___ ___
+            </div>
+        </div>
+
+        <div class="card" draggable="true" id="card-sentences">
+            <div class="card-title">Complete Sentences</div>
+            <div class="card-visual lines" style="border:1px solid #ccc; width:80%;">Look at...</div>
+        </div>
+
+        <div class="card" draggable="true" id="card-topic">
+            <div class="card-title">On Topic</div>
+            <div class="card-visual">🗣️⭐️</div>
+        </div>
+
+        <div class="card" draggable="true" id="card-punctuation">
+            <div class="card-title">Punctuation</div>
+            <div class="card-visual text-style">. ! ?</div>
+        </div>
+
+    </div>
+
+    <script>
+        /* --- JavaScript 邏輯區 --- */
+        
+        const cards = document.querySelectorAll('.card');
+        const slots = document.querySelectorAll('.grid-slot');
+        const optionsContainer = document.getElementById('source-container');
+
+        // 1. 為每個卡片添加拖曳事件
+        cards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+        });
+
+        // 2. 為每個目標格子添加放置事件
+        slots.forEach(slot => {
+            slot.addEventListener('dragover', dragOver);
+            slot.addEventListener('dragenter', dragEnter);
+            slot.addEventListener('dragleave', dragLeave);
+            slot.addEventListener('drop', drop);
+        });
+
+        // 3. 允許拖回底部區域 (如果使用者改變主意)
+        optionsContainer.addEventListener('dragover', dragOver);
+        optionsContainer.addEventListener('drop', dropToContainer);
+
+
+        // --- 函數定義 ---
+
+        function dragStart(e) {
+            // 傳輸被拖曳物件的 ID
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.dataTransfer.effectAllowed = "move";
+        }
+
+        function dragOver(e) {
+            // 必須阻止默認行為才能允許 "drop"
+            e.preventDefault();
+        }
+
+        function dragEnter(e) {
+            e.preventDefault();
+            // 如果進入的是格子，添加視覺提示
+            if (e.target.classList.contains('grid-slot')) {
+                e.target.classList.add('drag-over');
+            }
+        }
+
+        function dragLeave(e) {
+            // 離開格子時移除視覺提示
+            if (e.target.classList.contains('grid-slot')) {
+                e.target.classList.remove('drag-over');
+            }
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            
+            // 獲取目標格子 (處理可能 Drop 在格子內部的子元素上的情況)
+            let targetSlot = e.target;
+            if (!targetSlot.classList.contains('grid-slot')) {
+                targetSlot = targetSlot.closest('.grid-slot');
+            }
+
+            // 移除高亮樣式
+            if (targetSlot) {
+                targetSlot.classList.remove('drag-over');
+
+                // 獲取被拖曳的元素 ID
+                const id = e.dataTransfer.getData('text/plain');
+                const draggable = document.getElementById(id);
+
+                if (draggable) {
+                    // 邏輯判斷：如果格子裡已經有卡片，可以選擇替換或者禁止放置
+                    // 這裡的邏輯是：如果格子有卡片，將原卡片移回底部，放入新卡片
+                    if (targetSlot.children.length > 0) {
+                        const existingCard = targetSlot.firstElementChild;
+                        optionsContainer.appendChild(existingCard);
+                    }
+                    targetSlot.appendChild(draggable);
+                }
+            }
+        }
+
+        function dropToContainer(e) {
+            e.preventDefault();
+            const id = e.dataTransfer.getData('text/plain');
+            const draggable = document.getElementById(id);
+            
+            // 確保是從格子裡拖回來的，而不是在容器內部亂拖
+            if (draggable) {
+                optionsContainer.appendChild(draggable);
+            }
+        }
+    </script>
+</body>
+</html>
