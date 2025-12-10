@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sentence Structure Analysis</title>
     <style>
-        /* --- 1. 字體設定 --- */
+        /* --- 1. Font Embedding --- */
         @font-face {
             font-family: 'Century Gothic';
             src: url('centurygothic.ttf') format('truetype');
@@ -37,9 +37,9 @@
             align-items: center;
         }
 
-        /* --- 2. 句子互動區域 --- */
+        /* --- 2. Sentence Interaction Area --- */
         .sentence-display {
-            font-size: 90px; /* 超大字體 */
+            font-size: 90px;
             font-weight: bold;
             margin-top: 20px;
             margin-bottom: 30px;
@@ -47,7 +47,7 @@
             cursor: default;
         }
 
-        /* 互動元件的基本樣式 */
+        /* Interactive Component Base Styles */
         .interactive-span {
             display: inline-block;
             padding: 5px 2px;
@@ -56,7 +56,7 @@
             position: relative;
         }
 
-        /* 提示狀態：當前任務目標滑鼠移上去會變色 */
+        /* Hint State */
         .interactive-span.active-target {
             cursor: pointer;
         }
@@ -64,30 +64,30 @@
             background-color: #eef9ff;
         }
 
-        /* --- 完成後的標記樣式 (對應截圖) --- */
+        /* --- Completed Styles --- */
         
-        /* 藍色方框 (Capital Letter & Punctuation) */
+        /* Blue Box */
         .blue-box {
             border: 5px solid #0070c0;
             padding: 0 5px;
             margin: 0 2px;
         }
 
-        /* 黑色底線 (Who part) */
+        /* Black Underline */
         .black-underline {
             border-bottom: 8px solid black;
             border-radius: 0;
         }
 
-        /* 黑色橢圓圈 (Predicate part) */
+        /* Black Oval */
         .black-oval {
             border: 5px solid black;
-            border-radius: 50% / 100%; /* 橢圓形 */
-            padding: 5px 25px; /* 左右加寬讓圈圈好看 */
+            border-radius: 50% / 100%;
+            padding: 5px 25px;
             margin: 0 10px;
         }
 
-        /* --- 3. 下方內容區 (圖 + 規則) --- */
+        /* --- 3. Content Area --- */
         .content-area {
             display: flex;
             width: 100%;
@@ -96,7 +96,7 @@
             gap: 50px;
         }
 
-        /* 左側圖片 */
+        /* Image Box */
         .image-box {
             width: 400px;
             height: 300px;
@@ -112,16 +112,16 @@
             object-fit: cover;
         }
 
-        /* 右側規則文字 */
+        /* Rules Text */
         .rules-container {
             flex: 1;
             max-width: 550px;
-            opacity: 0.2; /* 預設變淡，引起注意上方句子 */
+            opacity: 0.2;
             transition: opacity 0.5s;
         }
 
         .rules-header {
-            color: #0070c0; /* 藍色標題 */
+            color: #0070c0;
             font-size: 36px;
             font-weight: bold;
             margin-bottom: 20px;
@@ -150,17 +150,17 @@
             margin-left: -1em;
         }
 
-        /* 強調關鍵字 (Italics / Bold in screenshot) */
+        /* Emphasis */
         .emphasis {
             font-style: italic;
             font-weight: bold;
         }
 
-        /* --- 4. 底部指令條 (Wizard) --- */
+        /* --- 4. Instruction Bar --- */
         .instruction-bar {
             position: fixed;
             bottom: 30px;
-            background-color: #fff9c4; /* 淺黃色背景 */
+            background-color: #fff9c4;
             border: 3px solid #fbc02d;
             padding: 15px 40px;
             border-radius: 50px;
@@ -213,6 +213,7 @@
     <div class="instruction-bar" id="msg-bar">
         Step 1: Touch the capital letter.
     </div>
+    
     <button id="next-activity-btn" onclick="goToNext()" style="display:none; position: fixed; bottom: 30px; right: 30px; padding: 15px 30px; background: #000080; color: white; border: none; border-radius: 50px; font-size: 20px; cursor: pointer; z-index: 200;">
         Next Activity ➜
     </button>
@@ -220,36 +221,87 @@
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
         const studentId = localStorage.getItem('studentId') || 'Anonymous';
+        
+        // Element references
+        const capPart = document.getElementById('cap-part');
+        const puncPart = document.getElementById('punc-part');
+        const whoPart = document.getElementById('who-part');
+        const morePart = document.getElementById('more-part');
+        const msgBar = document.getElementById('msg-bar');
+        const rulesArea = document.getElementById('rules-area');
+
         let step = 1;
 
-        // ... 保留原本的 const 變數宣告 ...
-        // ... 保留原本的 handleInteraction 邏輯 ...
+        // Initialize first step
+        capPart.classList.add('active-target');
 
-        // 修改 handleInteraction 內的記錄邏輯
         function logData(action, result) {
             const data = { studentId: studentId, activity: 'Sentence Structure', action: action, result: result };
-            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(data) 
+            }).catch(err => console.error('Log error:', err));
         }
 
         function handleClick(clickedType) {
-            // ... 原本的邏輯 ...
-            // 在每個正確步驟裡加入 logData
-            // 例如步驟 1 成功後:
-            // logData('Step 1', 'Found Capital Letter');
             
-            // ... (請將原本的邏輯貼回這裡，並加入 logData) ...
-            
-            // 修改最後的 finishActivity
+            // --- Step 1: Capital Letter ---
+            if (step === 1 && clickedType === 'cap') {
+                capPart.classList.add('blue-box');
+                capPart.classList.remove('active-target');
+                logData('Step 1', 'Found Capital Letter');
+                
+                step = 2;
+                msgBar.innerText = "Step 2: Touch the punctuation at the end.";
+                msgBar.style.backgroundColor = "#e1f5fe";
+                puncPart.classList.add('active-target');
+            }
+
+            // --- Step 2: Punctuation ---
+            else if (step === 2 && clickedType === 'punc') {
+                puncPart.classList.add('blue-box');
+                puncPart.classList.remove('active-target');
+                logData('Step 2', 'Found Punctuation');
+
+                step = 3;
+                msgBar.innerText = "Step 3: Underline the naming part (Who).";
+                msgBar.style.backgroundColor = "#fff9c4";
+                whoPart.classList.add('active-target');
+            }
+
+            // --- Step 3: Who part ---
+            else if (step === 3 && clickedType === 'who') {
+                whoPart.classList.add('black-underline');
+                whoPart.classList.remove('active-target');
+                logData('Step 3', 'Found Who Part');
+
+                step = 4;
+                msgBar.innerText = "Step 4: Circle the telling part (Tells more).";
+                msgBar.style.backgroundColor = "#e1f5fe";
+                morePart.classList.add('active-target');
+            }
+
+            // --- Step 4: Tells more part ---
+            else if (step === 4 && clickedType === 'more') {
+                morePart.classList.add('black-oval');
+                morePart.classList.remove('active-target');
+                logData('Step 4', 'Found Telling Part');
+
+                step = 5;
+                finishActivity();
+            }
         }
 
         function finishActivity() {
-            document.getElementById('msg-bar').innerText = "Great job! You analyzed the sentence!";
-            document.getElementById('msg-bar').style.backgroundColor = "#b9f6ca";
+            msgBar.innerText = "Great job! You analyzed the sentence!";
+            msgBar.style.backgroundColor = "#b9f6ca";
             document.getElementById('rules-area').style.opacity = "1";
             
-            logData('Complete', 'All steps finished');
+            logData('Complete', 'Activity Finished');
             
-            // 顯示下一步按鈕
+            // Show next button
             document.getElementById('next-activity-btn').style.display = 'block';
         }
 
