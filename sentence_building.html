@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Building Activity</title>
+    <style>
+        /* --- 1. 字體設定 --- */
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic_bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'Century Gothic', sans-serif;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* --- 2. 標題樣式 --- */
+        h1 {
+            font-size: 60px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            color: #000;
+            text-align: center;
+        }
+
+        /* 螢光綠底色效果 */
+        .highlight {
+            background-color: #00ff00; /* 亮綠色 */
+            padding: 0 10px;
+            display: inline-block;
+        }
+
+        /* --- 3. 遊戲主區域 --- */
+        .game-board {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        /* 每個格子的容器 (包含格子 + 數字) */
+        .slot-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 空格 (Drop Zone) */
+        .slot {
+            width: 160px;
+            height: 140px;
+            border: 5px solid black;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .slot:hover {
+            background-color: #f7f7f7;
+        }
+
+        /* 格子內的文字樣式 */
+        .slot-text {
+            font-size: 40px;
+            font-weight: bold;
+            pointer-events: none; /* 讓點擊穿透到格子 */
+        }
+
+        /* 數字標籤 (1, 2, 3...) */
+        .number-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px; /* 圓角方形 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: black;
+        }
+
+        /* 根據截圖設定顏色 */
+        .badge-1 { background-color: #ff33cc; color: white; } /* 粉紅 */
+        .badge-2 { background-color: #ffcc00; } /* 黃 */
+        .badge-3 { background-color: #99ccff; } /* 淺藍 */
+        .badge-4 { background-color: #ccff66; } /* 淺綠 */
+        .badge-5 { background-color: #cc99ff; color: white; } /* 紫 */
+
+        /* --- 4. 字卡區 (Word Bank) --- */
+        .word-bank {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            min-height: 100px;
+            width: 80%;
+            max-width: 900px;
+        }
+
+        /* 可拖曳/點擊的字卡 */
+        .word-card {
+            background-color: white;
+            border: 3px solid #333;
+            padding: 15px 30px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.1s, border-color 0.2s;
+        }
+
+        .word-card:active {
+            transform: scale(0.95);
+        }
+
+        /* 選中狀態 */
+        .word-card.selected {
+            border-color: #ff9900; /* 橘色外框 */
+            background-color: #fff8e1;
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
+        }
+
+        /* 隱藏已經放到上面的卡片 */
+        .word-card.placed {
+            display: none;
+        }
+
+        /* --- 5. 初始輸入視窗 (Modal) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            font-family: 'Century Gothic', sans-serif;
+        }
+
+        .modal-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .color-input {
+            font-size: 24px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            width: 200px;
+            text-align: center;
+            font-family: 'Century Gothic', sans-serif;
+        }
+
+        .start-btn {
+            display: block;
+            margin: 20px auto 0;
+            font-size: 24px;
+            padding: 10px 30px;
+            background-color: #00ff00;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Century Gothic', sans-serif;
+        }
+        .start-btn:hover { background-color: #00cc00; }
+
+        /* --- 6. 完成按鈕 (隱藏) --- */
+        .done-btn {
+            margin-top: 30px;
+            font-size: 24px;
+            padding: 15px 40px;
+            background-color: #00aaff;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none; /* 預設隱藏 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay" id="start-modal">
+        <div class="modal-box">
+            <div class="modal-title">What is your favorite color?</div>
+            <input type="text" id="user-color-input" class="color-input" placeholder="e.g. Blue" autocomplete="off">
+            <button class="start-btn" onclick="startGame()">Start!</button>
+        </div>
+    </div>
+
+    <h1>What is your <span class="highlight">favorite color</span>?</h1>
+
+    <div class="game-board">
+        <div class="slot-container">
+            <div class="slot" onclick="placeWord(0)"></div>
+            <div class="number-badge badge-1">1</div>
+        </div>
+        <div class="slot-container">
+            <div class="slot" onclick="placeWord(1)"></div>
+            <div class="number-badge badge-2">2</div>
+        </div>
+        <div class="slot-container">
+            <div class="slot" onclick="placeWord(2)"></div>
+            <div class="number-badge badge-3">3</div>
+        </div>
+        <div class="slot-container">
+            <div class="slot" onclick="placeWord(3)"></div>
+            <div class="number-badge badge-4">4</div>
+        </div>
+        <div class="slot-container">
+            <div class="slot" onclick="placeWord(4)"></div>
+            <div class="number-badge badge-5">5</div>
+        </div>
+    </div>
+
+    <div class="word-bank" id="word-bank">
+        </div>
+
+    <button class="done-btn" id="done-btn" onclick="alert('Great Job!')">DONE ✔</button>
+
+    <script>
+        let selectedWordElement = null; // 目前被選中的字卡 DOM
+        let userColor = "Blue"; // 預設值
+        
+        // 正確句子的順序
+        const correctOrder = ["My", "favorite", "color", "is"]; // 最後一個是 userColor
+
+        // 1. 開始遊戲
+        function startGame() {
+            const input = document.getElementById('user-color-input');
+            if (input.value.trim() !== "") {
+                userColor = input.value.trim();
+            }
+            
+            // 隱藏彈窗
+            document.getElementById('start-modal').style.display = 'none';
+            
+            // 生成並打亂字卡
+            initWordBank();
+        }
+
+        // 初始化字卡
+        function initWordBank() {
+            const bank = document.getElementById('word-bank');
+            // 準備所有單字
+            let words = ["My", "favorite", "color", "is", userColor];
+            
+            // 洗牌 (Fisher-Yates Shuffle)
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+
+            // 產生 HTML
+            words.forEach(word => {
+                const div = document.createElement('div');
+                div.className = 'word-card';
+                div.textContent = word;
+                div.onclick = function(e) { selectWord(e, this); };
+                bank.appendChild(div);
+            });
+        }
+
+        // 2. 點選字卡邏輯
+        function selectWord(event, element) {
+            event.stopPropagation();
+
+            // 如果點的是同一張 -> 取消選取
+            if (selectedWordElement === element) {
+                element.classList.remove('selected');
+                selectedWordElement = null;
+                return;
+            }
+
+            // 如果之前有選別張 -> 取消那張
+            if (selectedWordElement) {
+                selectedWordElement.classList.remove('selected');
+            }
+
+            // 選取新的一張
+            selectedWordElement = element;
+            element.classList.add('selected');
+        }
+
+        // 3. 放置字卡邏輯
+        function placeWord(slotIndex) {
+            const slots = document.querySelectorAll('.slot');
+            const targetSlot = slots[slotIndex];
+
+            // 必須先選中一張卡
+            if (selectedWordElement) {
+                
+                // 如果格子裡已經有字，把舊字移回 Bank
+                if (targetSlot.children.length > 0) {
+                    const oldWordDiv = targetSlot.firstElementChild; // 這是 slot-text div
+                    // 重新建立一張卡片放回 bank
+                    createCardInBank(oldWordDiv.textContent);
+                    targetSlot.innerHTML = '';
+                }
+
+                // 在格子裡顯示文字
+                const textDiv = document.createElement('div');
+                textDiv.className = 'slot-text';
+                textDiv.textContent = selectedWordElement.textContent;
+                targetSlot.appendChild(textDiv);
+
+                // 移除來源卡片 (或隱藏)
+                selectedWordElement.remove();
+                selectedWordElement = null;
+
+                // 檢查是否完成
+                checkSentence();
+            } else {
+                // 如果沒選卡片但點了格子 -> 如果格子有字，把字退回 Bank (取消放置)
+                if (targetSlot.children.length > 0) {
+                    const text = targetSlot.firstElementChild.textContent;
+                    createCardInBank(text);
+                    targetSlot.innerHTML = '';
+                    checkSentence(); // 重新檢查狀態
+                }
+            }
+        }
+
+        // 輔助：把字卡放回 Bank
+        function createCardInBank(text) {
+            const bank = document.getElementById('word-bank');
+            const div = document.createElement('div');
+            div.className = 'word-card';
+            div.textContent = text;
+            div.onclick = function(e) { selectWord(e, this); };
+            bank.appendChild(div);
+        }
+
+        // 4. 檢查答案邏輯
+        function checkSentence() {
+            const slots = document.querySelectorAll('.slot');
+            let filledCount = 0;
+            let currentSentence = [];
+
+            slots.forEach(slot => {
+                if (slot.children.length > 0) {
+                    filledCount++;
+                    currentSentence.push(slot.firstElementChild.textContent);
+                }
+            });
+
+            const doneBtn = document.getElementById('done-btn');
+
+            // 只有填滿 5 格才檢查
+            if (filledCount === 5) {
+                // 比對前4個字
+                let isCorrect = true;
+                if (currentSentence[0] !== "My") isCorrect = false;
+                if (currentSentence[1] !== "favorite") isCorrect = false;
+                if (currentSentence[2] !== "color") isCorrect = false;
+                if (currentSentence[3] !== "is") isCorrect = false;
+                // 第5個字應該要是 userColor (不分大小寫比對以防萬一)
+                if (currentSentence[4].toLowerCase() !== userColor.toLowerCase()) isCorrect = false;
+
+                if (isCorrect) {
+                    // 答對了
+                    slots.forEach(slot => slot.style.backgroundColor = "#e6fffa"); // 淡綠色背景
+                    doneBtn.style.display = "block";
+                } else {
+                    // 順序錯誤
+                    slots.forEach(slot => slot.style.backgroundColor = "#fff0f0"); // 淡紅色背景
+                    doneBtn.style.display = "none";
+                }
+            } else {
+                // 還沒填完，恢復白色
+                slots.forEach(slot => slot.style.backgroundColor = "white");
+                doneBtn.style.display = "none";
+            }
+        }
+
+    </script>
+</body>
+</html>
