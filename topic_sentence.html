@@ -216,44 +216,44 @@
     </div>
 
     <script>
+        // *** 設定：請貼上你的 Google Apps Script 網址 ***
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
+        const studentId = localStorage.getItem('studentId') || 'Anonymous';
+
+        function logData(action, result) {
+            const data = { studentId: studentId, activity: 'Topic Sentence', action: action, result: result };
+            fetch(SCRIPT_URL, {
+                method: 'POST', mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+
         function checkAnswer(element, isCorrect) {
-            // 1. 重置所有選項的樣式
             const options = document.querySelectorAll('.option-item');
             options.forEach(opt => opt.classList.remove('correct'));
-
-            // 2. 清空答案欄
             const answerDisplay = document.getElementById('final-answer');
             const arrow = document.getElementById('arrow');
             
-            if (isCorrect) {
-                // 如果答對：
-                // A. 選項變綠框
-                element.classList.add('correct');
-                
-                // B. 下方顯示文字 (綠色)
-                answerDisplay.textContent = element.textContent.trim();
-                
-                // C. 顯示箭頭 (選擇性特效)
-                // 為了簡單起見，我們直接讓文字出現即可，若需箭頭可取消下方註解
-                // arrow.style.display = 'block'; 
+            // 記錄學生的選擇
+            logData('Select Option', element.textContent.trim() + " (" + (isCorrect ? "Correct" : "Incorrect") + ")");
 
+            if (isCorrect) {
+                element.classList.add('correct');
+                answerDisplay.textContent = element.textContent.trim();
             } else {
-                // 如果答錯：
                 answerDisplay.textContent = "";
                 arrow.style.display = 'none';
-                alert("Try again! Which sentence tells us what the main topic is?");
+                alert("Try again!");
             }
         }
 
         function goToNextPage() {
-            // 這裡設定你要跳轉的頁面
-            // 例如：window.location.href = 'page2.html';
-            
-            // 目前先用彈跳視窗示範
             const answerDisplay = document.getElementById('final-answer');
             if (answerDisplay.textContent !== "") {
-                alert("Great job! Moving to the next activity...");
-                // window.location.href = "next_activity.html"; // 請將這裡換成你的下一個網址
+                logData('Navigation', 'Go to Sentence Structure');
+                // 跳轉到下一個檔案
+                window.location.href = "sentence_structure.html"; 
             } else {
                 alert("Please select the correct topic sentence first.");
             }
