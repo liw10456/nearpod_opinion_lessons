@@ -30,13 +30,12 @@
             user-select: none;
         }
 
-        /* Serif 'I' for "Identifying" and "Informational" */
         .serif-I {
             font-family: 'Times New Roman', Times, serif;
         }
 
         h2 {
-            color: #000080; /* Navy Blue */
+            color: #000080;
             text-align: center;
             max-width: 900px;
             margin-bottom: 25px;
@@ -45,7 +44,7 @@
             line-height: 1.4;
         }
 
-        /* --- 3. Login Overlay Styles --- */
+        /* --- 3. Login Overlay Styles (關鍵部分) --- */
         .login-overlay {
             position: fixed;
             top: 0;
@@ -53,8 +52,8 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
-            z-index: 999;
-            display: flex;
+            z-index: 9999; /* 確保它在最上層 */
+            display: flex; /* 預設為顯示 */
             justify-content: center;
             align-items: center;
         }
@@ -65,6 +64,7 @@
             border-radius: 10px;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 300px;
         }
 
         .login-input {
@@ -74,6 +74,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-family: 'Century Gothic', sans-serif;
+            width: 80%;
         }
 
         .login-btn {
@@ -88,7 +89,24 @@
         }
         .login-btn:hover { background-color: #000060; }
 
-        /* --- 4. Checklist Grid Area --- */
+        /* --- 4. Reset Button (測試用) --- */
+        .reset-btn {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            background-color: #ff4444;
+            color: white;
+            font-size: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0.7;
+        }
+        .reset-btn:hover { opacity: 1; }
+
+        /* --- 5. Checklist Grid Area --- */
         .checklist-container {
             width: 100%;
             max-width: 850px;
@@ -127,7 +145,7 @@
             background-color: #f7f7f7;
         }
 
-        /* --- 5. Source/Options Area --- */
+        /* --- 6. Options Area --- */
         .options-container {
             display: flex;
             justify-content: center;
@@ -142,7 +160,7 @@
             border: 2px dashed #ccc;
         }
 
-        /* --- 6. Card Styles --- */
+        /* --- 7. Card Styles --- */
         .card {
             width: 140px;
             height: 125px;
@@ -184,24 +202,19 @@
             pointer-events: none;
         }
 
-        /* --- Specific Card Visuals --- */
         .text-visual { font-size: 28px; font-weight: bold; letter-spacing: 5px; }
         .topic-visual { font-size: 45px; }
-
-        /* Lines Visual (Organization) */
         .lines-visual { display: flex; flex-direction: column; gap: 6px; width: 70%; }
         .lines-row { display: flex; gap: 5px; }
         .lines-bar { height: 4px; background-color: #ccc; border-radius: 2px; }
         .lines-dot { width: 6px; height: 6px; background-color: #8accff; border-radius: 50%; }
-
-        /* Sentence Box Visual */
         .sentence-box { border: 1px solid #333; width: 90%; height: 80%; padding: 4px; display: flex; flex-direction: column; justify-content: space-around; }
         .sentence-line-group { display: flex; flex-direction: column; }
         .sentence-text { font-size: 11px; color: #999; margin-bottom: -2px; padding-left: 2px; }
         .sentence-line { border-bottom: 1px dashed #999; width: 100%; height: 1px; }
         .sentence-line.solid { border-bottom: 1px solid #333; margin-top: 1px; }
 
-        /* --- 7. Next Button --- */
+        /* --- 8. Next Button --- */
         .next-activity-btn {
             margin-top: 30px;
             padding: 15px 40px;
@@ -211,7 +224,7 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            display: none; /* Hidden by default */
+            display: none;
             font-family: 'Century Gothic', sans-serif;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
@@ -223,12 +236,14 @@
 
     <div class="login-overlay" id="login-overlay">
         <div class="login-box">
-            <h2>Enter your Name or ID</h2>
-            <input type="text" id="student-id" class="login-input" placeholder="Name">
+            <h2>Enter your Name</h2>
+            <input type="text" id="student-id" class="login-input" placeholder="Name or ID">
             <br>
             <button class="login-btn" onclick="startSession()">Start Activity</button>
         </div>
     </div>
+
+    <button class="reset-btn" onclick="resetUser()">Reset User</button>
 
     <h2>Today we will work on <span class="serif-I">I</span>dentifying the parts of an <span class="serif-I">I</span>nformational writing piece so that our writing is organized and on topic.</h2>
 
@@ -249,12 +264,10 @@
     </div>
 
     <div class="options-container" id="source-area" onclick="returnCardToSource()">
-        
         <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Capital Letter</div>
             <div class="card-visual text-visual">H T L</div>
         </div>
-
         <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Organization</div>
             <div class="card-visual lines-visual">
@@ -264,7 +277,6 @@
                 <div class="lines-row"><div class="lines-dot"></div><div class="lines-bar" style="width: 80%;"></div></div>
             </div>
         </div>
-
         <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Complete Sentences</div>
             <div class="card-visual">
@@ -282,23 +294,20 @@
                 </div>
             </div>
         </div>
-
         <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">On Topic</div>
             <div class="card-visual topic-visual">🗣️⭐️</div>
         </div>
-
         <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Punctuation</div>
             <div class="card-visual text-visual">. <span class="serif-I">!</span> ?</div>
         </div>
-
     </div>
 
     <button class="next-activity-btn" id="next-btn" onclick="goToNext()">Next Activity ➜</button>
 
     <script>
-        // *** GOOGLE SCRIPT URL ***
+        // Google Script URL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec'; 
 
         let selectedCard = null;
@@ -309,14 +318,21 @@
             const input = document.getElementById('student-id').value;
             if(input) {
                 studentId = input;
-                // Save to LocalStorage for next pages
                 localStorage.setItem('studentId', studentId);
                 document.getElementById('login-overlay').style.display = 'none';
-                logData('Main', 'Session Start', 'Login');
+                logData('Main', 'Session Start', 'Login: ' + studentId);
+            } else {
+                alert("Please enter a name.");
             }
         }
 
-        // --- 2. Data Logging Function ---
+        // 測試用：清除使用者並重新整理
+        function resetUser() {
+            localStorage.removeItem('studentId');
+            location.reload();
+        }
+
+        // --- 2. Data Logging ---
         function logData(activity, action, result) {
             const data = { studentId: studentId, activity: activity, action: action, result: result };
             fetch(SCRIPT_URL, {
@@ -330,40 +346,26 @@
         // --- 3. Interaction Logic ---
         function selectCard(event, element) {
             event.stopPropagation();
-            // If clicking the same card, deselect
             if (selectedCard === element) {
                 element.classList.remove('selected');
                 selectedCard = null;
                 return;
             }
-            // If clicking a different card, deselect previous
-            if (selectedCard) {
-                selectedCard.classList.remove('selected');
-            }
-            // Select new card
+            if (selectedCard) selectedCard.classList.remove('selected');
             selectedCard = element;
             selectedCard.classList.add('selected');
         }
 
         function placeCard(slot) {
             if (selectedCard) {
-                // Log action to Google Sheet
                 logData('Checklist', 'Place Card', selectedCard.innerText.split('\n')[0]);
-                
-                // If slot is occupied, move existing item back to source
                 if (slot.children.length > 0) {
                     const existingCard = slot.firstElementChild;
                     document.getElementById('source-area').appendChild(existingCard);
                 }
-                
-                // Move card to slot
                 slot.appendChild(selectedCard);
-                
-                // Reset Selection
                 selectedCard.classList.remove('selected');
                 selectedCard = null;
-                
-                // Show Next Button once user starts interacting
                 document.getElementById('next-btn').style.display = 'block';
             }
         }
@@ -379,20 +381,21 @@
             }
         }
 
-        // --- 4. Navigation ---
         function goToNext() {
             logData('Checklist', 'Navigation', 'Go to Topic Sentence');
-            // Navigate to the next HTML file
             window.location.href = 'topic_sentence.html';
         }
         
-        // --- 5. Initialization ---
+        // --- 4. Initialization ---
         window.onload = function() {
-            // Check if user is already logged in from a previous session (optional)
-            if(localStorage.getItem('studentId')) {
+            // 自動登入檢查 (我先將其註解掉，以便你測試看到 Login Panel)
+            // 如果你希望之後自動隱藏，請取消下面這行的註解:
+            
+            /* if(localStorage.getItem('studentId')) {
                 studentId = localStorage.getItem('studentId');
                 document.getElementById('login-overlay').style.display = 'none';
             }
+            */
         }
     </script>
 </body>
