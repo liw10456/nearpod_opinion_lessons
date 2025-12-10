@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sentence Building Activity</title>
     <style>
-        /* --- 1. 字體設定 --- */
+        /* --- 1. Font Embedding --- */
         @font-face {
             font-family: 'Century Gothic';
             src: url('centurygothic.ttf') format('truetype');
@@ -30,7 +30,7 @@
             overflow-x: hidden;
         }
 
-        /* --- 2. 標題樣式 --- */
+        /* --- 2. Title Styles --- */
         h1 {
             font-size: 60px;
             font-weight: bold;
@@ -40,14 +40,13 @@
             text-align: center;
         }
 
-        /* 螢光綠底色效果 */
         .highlight {
-            background-color: #00ff00; /* 亮綠色 */
+            background-color: #00ff00;
             padding: 0 10px;
             display: inline-block;
         }
 
-        /* --- 3. 遊戲主區域 --- */
+        /* --- 3. Game Board --- */
         .game-board {
             display: flex;
             gap: 20px;
@@ -56,7 +55,6 @@
             flex-wrap: wrap;
         }
 
-        /* 每個格子的容器 (包含格子 + 數字) */
         .slot-container {
             display: flex;
             flex-direction: column;
@@ -64,7 +62,6 @@
             gap: 10px;
         }
 
-        /* 空格 (Drop Zone) */
         .slot {
             width: 160px;
             height: 140px;
@@ -81,18 +78,16 @@
             background-color: #f7f7f7;
         }
 
-        /* 格子內的文字樣式 */
         .slot-text {
             font-size: 40px;
             font-weight: bold;
-            pointer-events: none; /* 讓點擊穿透到格子 */
+            pointer-events: none;
         }
 
-        /* 數字標籤 (1, 2, 3...) */
         .number-badge {
             width: 50px;
             height: 50px;
-            border-radius: 12px; /* 圓角方形 */
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -101,14 +96,13 @@
             color: black;
         }
 
-        /* 根據截圖設定顏色 */
-        .badge-1 { background-color: #ff33cc; color: white; } /* 粉紅 */
-        .badge-2 { background-color: #ffcc00; } /* 黃 */
-        .badge-3 { background-color: #99ccff; } /* 淺藍 */
-        .badge-4 { background-color: #ccff66; } /* 淺綠 */
-        .badge-5 { background-color: #cc99ff; color: white; } /* 紫 */
+        .badge-1 { background-color: #ff33cc; color: white; }
+        .badge-2 { background-color: #ffcc00; }
+        .badge-3 { background-color: #99ccff; }
+        .badge-4 { background-color: #ccff66; }
+        .badge-5 { background-color: #cc99ff; color: white; }
 
-        /* --- 4. 字卡區 (Word Bank) --- */
+        /* --- 4. Word Bank --- */
         .word-bank {
             display: flex;
             gap: 20px;
@@ -122,7 +116,6 @@
             max-width: 900px;
         }
 
-        /* 可拖曳/點擊的字卡 */
         .word-card {
             background-color: white;
             border: 3px solid #333;
@@ -139,20 +132,14 @@
             transform: scale(0.95);
         }
 
-        /* 選中狀態 */
         .word-card.selected {
-            border-color: #ff9900; /* 橘色外框 */
+            border-color: #ff9900;
             background-color: #fff8e1;
             transform: scale(1.1);
             box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
         }
 
-        /* 隱藏已經放到上面的卡片 */
-        .word-card.placed {
-            display: none;
-        }
-
-        /* --- 5. 初始輸入視窗 (Modal) --- */
+        /* --- 5. Modal --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -202,7 +189,7 @@
         }
         .start-btn:hover { background-color: #00cc00; }
 
-        /* --- 6. 完成按鈕 (隱藏) --- */
+        /* --- 6. Done Button --- */
         .done-btn {
             margin-top: 30px;
             font-size: 24px;
@@ -213,7 +200,7 @@
             border-radius: 50px;
             cursor: pointer;
             font-weight: bold;
-            display: none; /* 預設隱藏 */
+            display: none;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
@@ -257,52 +244,144 @@
     <div class="word-bank" id="word-bank">
         </div>
 
-    <button class="done-btn" id="done-btn" onclick="alert('Great Job!')">DONE ✔</button>
+    <button class="done-btn" id="done-btn">DONE ✔</button>
 
     <script>
-        const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
         const studentId = localStorage.getItem('studentId') || 'Anonymous';
-        // ... 保留原本變數 ...
+        let selectedWordElement = null;
+        let userColor = "Blue";
 
         function logData(action, result) {
             const data = { studentId: studentId, activity: 'Sentence Building', action: action, result: result };
-            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                .catch(err => console.error('Log Error:', err));
         }
 
         function startGame() {
-            // ... 原本邏輯 ...
-            logData('Input Color', userColor); // 記錄喜歡的顏色
-            // ...
+            const input = document.getElementById('user-color-input');
+            if (input.value.trim() !== "") {
+                userColor = input.value.trim();
+            }
+            
+            logData('Input Color', userColor);
+            document.getElementById('start-modal').style.display = 'none';
+            initWordBank();
         }
 
-        // ... 保留 selectWord, placeWord ...
+        function initWordBank() {
+            const bank = document.getElementById('word-bank');
+            let words = ["My", "favorite", "color", "is", userColor];
+            
+            // Shuffle
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+
+            words.forEach(word => {
+                const div = document.createElement('div');
+                div.className = 'word-card';
+                div.textContent = word;
+                div.onclick = function(e) { selectWord(e, this); };
+                bank.appendChild(div);
+            });
+        }
+
+        function selectWord(event, element) {
+            event.stopPropagation();
+            if (selectedWordElement === element) {
+                element.classList.remove('selected');
+                selectedWordElement = null;
+                return;
+            }
+            if (selectedWordElement) {
+                selectedWordElement.classList.remove('selected');
+            }
+            selectedWordElement = element;
+            element.classList.add('selected');
+        }
+
+        function placeWord(slotIndex) {
+            const slots = document.querySelectorAll('.slot');
+            const targetSlot = slots[slotIndex];
+
+            if (selectedWordElement) {
+                if (targetSlot.children.length > 0) {
+                    const oldWordDiv = targetSlot.firstElementChild;
+                    createCardInBank(oldWordDiv.textContent);
+                    targetSlot.innerHTML = '';
+                }
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'slot-text';
+                textDiv.textContent = selectedWordElement.textContent;
+                targetSlot.appendChild(textDiv);
+
+                selectedWordElement.remove();
+                selectedWordElement = null;
+
+                checkSentence();
+            } else {
+                if (targetSlot.children.length > 0) {
+                    const text = targetSlot.firstElementChild.textContent;
+                    createCardInBank(text);
+                    targetSlot.innerHTML = '';
+                    checkSentence();
+                }
+            }
+        }
+
+        function createCardInBank(text) {
+            const bank = document.getElementById('word-bank');
+            const div = document.createElement('div');
+            div.className = 'word-card';
+            div.textContent = text;
+            div.onclick = function(e) { selectWord(e, this); };
+            bank.appendChild(div);
+        }
 
         function checkSentence() {
-            // ... 原本的檢查邏輯 ...
-            
+            const slots = document.querySelectorAll('.slot');
+            let filledCount = 0;
+            let currentSentence = [];
+
+            slots.forEach(slot => {
+                if (slot.children.length > 0) {
+                    filledCount++;
+                    currentSentence.push(slot.firstElementChild.textContent);
+                }
+            });
+
+            const doneBtn = document.getElementById('done-btn');
+
             if (filledCount === 5) {
-                // ... 判斷 isCorrect ...
+                let isCorrect = true;
+                if (currentSentence[0] !== "My") isCorrect = false;
+                if (currentSentence[1] !== "favorite") isCorrect = false;
+                if (currentSentence[2] !== "color") isCorrect = false;
+                if (currentSentence[3] !== "is") isCorrect = false;
+                if (currentSentence[4].toLowerCase() !== userColor.toLowerCase()) isCorrect = false;
 
                 if (isCorrect) {
-                    // 答對了
                     logData('Check Order', 'Correct Sentence Constructed');
                     slots.forEach(slot => slot.style.backgroundColor = "#e6fffa");
                     
-                    // 修改按鈕行為
-                    const btn = document.getElementById('done-btn');
-                    btn.textContent = "FINISH ALL ACTIVITIES!";
-                    btn.style.display = "block";
-                    btn.onclick = function() {
-                        alert("Congratulations! You have completed the entire lesson.");
+                    doneBtn.textContent = "FINISH ALL ACTIVITIES!";
+                    doneBtn.style.display = "block";
+                    doneBtn.onclick = function() {
                         logData('Session', 'Lesson Completed');
+                        alert("Congratulations! You have completed the entire lesson.");
                     };
                 } else {
-                    // 答錯了
                     logData('Check Order', 'Incorrect Order');
-                    // ... 
+                    slots.forEach(slot => slot.style.backgroundColor = "#fff0f0");
+                    doneBtn.style.display = "none";
                 }
+            } else {
+                slots.forEach(slot => slot.style.backgroundColor = "white");
+                doneBtn.style.display = "none";
             }
-            // ...
         }
     </script>
 </body>
