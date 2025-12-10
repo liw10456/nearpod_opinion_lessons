@@ -3,263 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寫作清單拖放練習</title>
+    <title>寫作清單互動練習</title>
     <style>
-        /* --- CSS 樣式區 --- */
+        /* --- 1. 字體設定 --- */
         body {
-            font-family: 'Arial', sans-serif;
+            /* 主要字體設定為 Century Gothic，如果系統沒有則使用類似的無襯線體 */
+            font-family: 'Century Gothic', 'Avant Garde', 'Verdana', sans-serif;
             background-color: #f9f9f9;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            user-select: none; /* 防止點擊時選取到文字 */
+        }
+
+        /* 針對大寫 I 的特殊樣式類別 */
+        .serif-I {
+            font-family: 'Times New Roman', Times, serif;
         }
 
         h2 {
-            color: #000080; /* 深藍色標題 */
+            color: #000080;
             text-align: center;
-            max-width: 800px;
+            max-width: 900px;
             margin-bottom: 20px;
+            font-weight: normal; /* Century Gothic 預設就很粗，標題不需要太重 */
+            line-height: 1.4;
         }
 
-        /* 表格容器 */
+        /* --- 2. 表格區域 --- */
         .checklist-container {
-            width: 90%;
-            max-width: 800px;
+            width: 100%;
+            max-width: 850px;
             background: white;
-            border: 1px solid #ccc;
-            margin-bottom: 30px;
+            border: 1px solid #999;
+            margin-bottom: 20px;
         }
 
         .checklist-header {
             text-align: center;
             font-weight: bold;
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
-            font-size: 1.2em;
+            padding: 12px;
+            border-bottom: 1px solid #999;
+            font-size: 1.3em;
         }
 
-        /* 網格系統：2行5列 */
+        /* 網格系統 */
         .grid-board {
             display: grid;
             grid-template-columns: repeat(5, 1fr); /* 5 列 */
-            grid-template-rows: repeat(2, 120px);  /* 2 行，每行高度固定 */
+            grid-template-rows: repeat(2, 140px);  /* 2 行，高度稍微加高 */
         }
 
-        /* 每一個格子 (Drop Zone) */
+        /* 格子 (Drop Zone) */
         .grid-slot {
             border: 1px solid #ccc;
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: #fff;
-            transition: background-color 0.3s;
+            position: relative;
+            transition: background-color 0.2s;
+            cursor: pointer; /* 讓滑鼠變成手指形狀，提示可點擊 */
         }
 
-        /* 當拖曳物件經過格子時的變色效果 */
-        .grid-slot.drag-over {
-            background-color: #e6f7ff;
-            border: 2px dashed #000080;
+        /* 當卡片被選取時，格子顯示可放置的提示 */
+        .grid-slot.highlight-target {
+            background-color: #eef9ff;
+        }
+        
+        .grid-slot:hover {
+            background-color: #f0f0f0; /* 滑鼠滑過效果 */
         }
 
-        /* 底部選項區 (Source Zone) */
+        /* --- 3. 底部選項區域 --- */
         .options-container {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
             flex-wrap: wrap;
-            width: 90%;
-            max-width: 800px;
-            min-height: 130px; /* 確保有高度可以放回 */
-            padding: 10px;
-            border: 1px dashed #ccc; /* 虛線框表示這裡也是放置區 */
-            border-radius: 8px;
+            width: 100%;
+            max-width: 850px;
+            min-height: 150px;
+            padding: 15px;
+            background-color: #eee; /* 稍微深一點的背景區分區域 */
+            border-radius: 10px;
+            cursor: pointer; /* 點擊這裡也可以把卡片放回來 */
         }
 
-        /* 卡片本體 (Draggable Item) */
+        /* --- 4. 卡片樣式 (可點擊物件) --- */
         .card {
-            width: 130px;
-            height: 110px;
-            border: 3px solid black; /* 加粗黑框 */
+            width: 140px;
+            height: 120px;
+            border: 3px solid black;
             background-color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            cursor: grab;
-            user-select: none;
             padding: 5px;
             box-sizing: border-box;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.1s, box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
         }
 
-        .card:active {
-            cursor: grabbing;
+        /* 卡片被選取時的狀態 (重要) */
+        .card.selected {
+            border-color: #ff9900; /* 亮橘色邊框 */
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
+            transform: scale(1.05); /* 稍微放大 */
+            z-index: 100;
         }
 
         .card-title {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
             margin-bottom: 5px;
+            pointer-events: none; /* 讓點擊穿透文字直接點到卡片 */
         }
 
-        /* 模擬圖片區域 (實際使用時請替換成 <img src="...">) */
         .card-visual {
-            font-size: 40px; 
             flex-grow: 1;
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            pointer-events: none;
         }
 
-        /* 針對不同卡片的微調 */
-        .card-visual.text-style { font-family: monospace; font-weight: bold; }
-        .card-visual.lines { font-size: 20px; color: #aaa; text-align: left; line-height: 1.2;}
+        /* 模擬圖片樣式 */
+        .text-visual { font-size: 24px; font-weight: bold; letter-spacing: 3px; }
+        .lines-visual { font-size: 12px; color: #ccc; line-height: 8px; width: 60%; text-align: center;}
+        .lines-visual span { display:block; border-bottom: 2px solid #ccc; margin-bottom: 6px; height: 2px;}
+        
+        /* 讓 Complete Sentences 的框框看起來像學習單 */
+        .sentence-box { border: 1px dashed #999; width: 90%; height: 70%; display: flex; flex-direction: column; justify-content: center; padding: 2px;}
+        .sentence-line { border-bottom: 1px dashed #ccc; width: 100%; height: 20px; margin-bottom: 5px;}
         
     </style>
 </head>
 <body>
 
-    <h2>Let's set our writing goal by placing the organization and on topic symbols on the writing checklist.</h2>
+    <h2>
+        Today we will work on <span class="serif-I">I</span>dentifying the parts of an <span class="serif-I">I</span>nformational writing piece so that our writing is organized and on topic.
+    </h2>
 
     <div class="checklist-container">
         <div class="checklist-header">Writing Checklist</div>
-        <div class="grid-board" id="target-grid">
-            <div class="grid-slot" data-slot-id="1"></div>
-            <div class="grid-slot" data-slot-id="2"></div>
-            <div class="grid-slot" data-slot-id="3"></div>
-            <div class="grid-slot" data-slot-id="4"></div>
-            <div class="grid-slot" data-slot-id="5"></div>
-            <div class="grid-slot" data-slot-id="6"></div>
-            <div class="grid-slot" data-slot-id="7"></div>
-            <div class="grid-slot" data-slot-id="8"></div>
-            <div class="grid-slot" data-slot-id="9"></div>
-            <div class="grid-slot" data-slot-id="10"></div>
+        <div class="grid-board">
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
+            <div class="grid-slot" onclick="placeCard(this)"></div>
         </div>
     </div>
 
-    <div class="options-container" id="source-container">
+    <div class="options-container" id="source-area" onclick="returnCardToSource()">
         
-        <div class="card" draggable="true" id="card-capital">
+        <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Capital Letter</div>
-            <div class="card-visual text-style">H T L</div>
+            <div class="card-visual text-visual">H T L</div>
         </div>
 
-        <div class="card" draggable="true" id="card-organization">
+        <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Organization</div>
-            <div class="card-visual lines">
-                ___ ___<br>___ ___
+            <div class="card-visual lines-visual">
+                <span></span><span></span><span></span><span></span>
             </div>
         </div>
 
-        <div class="card" draggable="true" id="card-sentences">
+        <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Complete Sentences</div>
-            <div class="card-visual lines" style="border:1px solid #ccc; width:80%;">Look at...</div>
+            <div class="card-visual">
+                <div class="sentence-box">
+                    <div style="font-size:10px; color:#aaa;">Look at...</div>
+                    <div class="sentence-line"></div>
+                    <div style="font-size:10px; color:#aaa;">the cat.</div>
+                    <div class="sentence-line"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="card" draggable="true" id="card-topic">
+        <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">On Topic</div>
-            <div class="card-visual">🗣️⭐️</div>
+            <div class="card-visual" style="font-size: 40px;">🗣️⭐️</div>
         </div>
 
-        <div class="card" draggable="true" id="card-punctuation">
+        <div class="card" onclick="selectCard(event, this)">
             <div class="card-title">Punctuation</div>
-            <div class="card-visual text-style">. ! ?</div>
+            <div class="card-visual text-visual">. <span class="serif-I">!</span> ?</div>
         </div>
 
     </div>
 
     <script>
-        /* --- JavaScript 邏輯區 --- */
-        
-        const cards = document.querySelectorAll('.card');
-        const slots = document.querySelectorAll('.grid-slot');
-        const optionsContainer = document.getElementById('source-container');
+        // 全域變數：追蹤目前被選取的卡片
+        let selectedCard = null;
 
-        // 1. 為每個卡片添加拖曳事件
-        cards.forEach(card => {
-            card.addEventListener('dragstart', dragStart);
-        });
+        // 1. 點擊卡片的功能
+        function selectCard(event, element) {
+            // 阻止事件冒泡 (避免觸發底層容器的點擊事件)
+            event.stopPropagation();
 
-        // 2. 為每個目標格子添加放置事件
-        slots.forEach(slot => {
-            slot.addEventListener('dragover', dragOver);
-            slot.addEventListener('dragenter', dragEnter);
-            slot.addEventListener('dragleave', dragLeave);
-            slot.addEventListener('drop', drop);
-        });
-
-        // 3. 允許拖回底部區域 (如果使用者改變主意)
-        optionsContainer.addEventListener('dragover', dragOver);
-        optionsContainer.addEventListener('drop', dropToContainer);
-
-
-        // --- 函數定義 ---
-
-        function dragStart(e) {
-            // 傳輸被拖曳物件的 ID
-            e.dataTransfer.setData('text/plain', e.target.id);
-            e.dataTransfer.effectAllowed = "move";
-        }
-
-        function dragOver(e) {
-            // 必須阻止默認行為才能允許 "drop"
-            e.preventDefault();
-        }
-
-        function dragEnter(e) {
-            e.preventDefault();
-            // 如果進入的是格子，添加視覺提示
-            if (e.target.classList.contains('grid-slot')) {
-                e.target.classList.add('drag-over');
-            }
-        }
-
-        function dragLeave(e) {
-            // 離開格子時移除視覺提示
-            if (e.target.classList.contains('grid-slot')) {
-                e.target.classList.remove('drag-over');
-            }
-        }
-
-        function drop(e) {
-            e.preventDefault();
-            
-            // 獲取目標格子 (處理可能 Drop 在格子內部的子元素上的情況)
-            let targetSlot = e.target;
-            if (!targetSlot.classList.contains('grid-slot')) {
-                targetSlot = targetSlot.closest('.grid-slot');
+            // 如果點擊的是已經選取的卡片 -> 取消選取
+            if (selectedCard === element) {
+                element.classList.remove('selected');
+                selectedCard = null;
+                return;
             }
 
-            // 移除高亮樣式
-            if (targetSlot) {
-                targetSlot.classList.remove('drag-over');
+            // 如果之前有選取別的卡片 -> 先取消那張的樣式
+            if (selectedCard) {
+                selectedCard.classList.remove('selected');
+            }
 
-                // 獲取被拖曳的元素 ID
-                const id = e.dataTransfer.getData('text/plain');
-                const draggable = document.getElementById(id);
+            // 選取當前這張
+            selectedCard = element;
+            selectedCard.classList.add('selected');
+        }
 
-                if (draggable) {
-                    // 邏輯判斷：如果格子裡已經有卡片，可以選擇替換或者禁止放置
-                    // 這裡的邏輯是：如果格子有卡片，將原卡片移回底部，放入新卡片
-                    if (targetSlot.children.length > 0) {
-                        const existingCard = targetSlot.firstElementChild;
-                        optionsContainer.appendChild(existingCard);
-                    }
-                    targetSlot.appendChild(draggable);
+        // 2. 點擊格子的功能 (放置卡片)
+        function placeCard(slot) {
+            // 只有當「已經選取了一張卡片」且「格子不同於卡片目前位置」時才動作
+            if (selectedCard) {
+                // 如果格子裡已經有東西，先將該東西移回底部 (或者你可以選擇交換，這裡採用移回底部策略)
+                if (slot.children.length > 0) {
+                    const existingCard = slot.firstElementChild;
+                    document.getElementById('source-area').appendChild(existingCard);
                 }
+
+                // 將選取的卡片移動到這個格子
+                slot.appendChild(selectedCard);
+
+                // 移動完後，移除選取狀態
+                selectedCard.classList.remove('selected');
+                selectedCard = null;
             }
         }
 
-        function dropToContainer(e) {
-            e.preventDefault();
-            const id = e.dataTransfer.getData('text/plain');
-            const draggable = document.getElementById(id);
-            
-            // 確保是從格子裡拖回來的，而不是在容器內部亂拖
-            if (draggable) {
-                optionsContainer.appendChild(draggable);
+        // 3. 點擊底部區域的功能 (退回卡片)
+        function returnCardToSource() {
+            if (selectedCard) {
+                const sourceArea = document.getElementById('source-area');
+                
+                // 只有當卡片不在底部區域時，才執行移動
+                if (!sourceArea.contains(selectedCard)) {
+                    sourceArea.appendChild(selectedCard);
+                }
+                
+                // 無論如何都取消選取狀態
+                selectedCard.classList.remove('selected');
+                selectedCard = null;
             }
         }
     </script>
