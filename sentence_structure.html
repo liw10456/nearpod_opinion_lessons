@@ -218,77 +218,45 @@
     </button>
 
     <script>
-        // 狀態變數：控制目前進行到第幾步
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
+        const studentId = localStorage.getItem('studentId') || 'Anonymous';
         let step = 1;
 
-        // 取得元素
-        const capPart = document.getElementById('cap-part');
-        const puncPart = document.getElementById('punc-part');
-        const whoPart = document.getElementById('who-part');
-        const morePart = document.getElementById('more-part');
-        const msgBar = document.getElementById('msg-bar');
-        const rulesArea = document.getElementById('rules-area');
+        // ... 保留原本的 const 變數宣告 ...
+        // ... 保留原本的 handleInteraction 邏輯 ...
 
-        // 初始化：設定第一個目標為活躍狀態
-        capPart.classList.add('active-target');
+        // 修改 handleInteraction 內的記錄邏輯
+        function logData(action, result) {
+            const data = { studentId: studentId, activity: 'Sentence Structure', action: action, result: result };
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        }
 
         function handleClick(clickedType) {
+            // ... 原本的邏輯 ...
+            // 在每個正確步驟裡加入 logData
+            // 例如步驟 1 成功後:
+            // logData('Step 1', 'Found Capital Letter');
             
-            // --- 步驟 1: 點擊大寫字母 (Capital Letter) ---
-            if (step === 1 && clickedType === 'cap') {
-                capPart.classList.add('blue-box'); // 加藍框
-                capPart.classList.remove('active-target'); // 移除活躍狀態
-                
-                // 前進下一步
-                step = 2;
-                msgBar.innerText = "Step 2: Touch the punctuation at the end.";
-                msgBar.style.backgroundColor = "#e1f5fe"; // 換個顏色提示變化
-                puncPart.classList.add('active-target');
-            }
-
-            // --- 步驟 2: 點擊標點符號 (Punctuation) ---
-            else if (step === 2 && clickedType === 'punc') {
-                puncPart.classList.add('blue-box');
-                puncPart.classList.remove('active-target');
-
-                step = 3;
-                msgBar.innerText = "Step 3: Underline the naming part (Who).";
-                msgBar.style.backgroundColor = "#fff9c4";
-                whoPart.classList.add('active-target');
-            }
-
-            // --- 步驟 3: 點擊主詞 (Who part) ---
-            else if (step === 3 && clickedType === 'who') {
-                whoPart.classList.add('black-underline');
-                whoPart.classList.remove('active-target');
-
-                step = 4;
-                msgBar.innerText = "Step 4: Circle the telling part (Tells more).";
-                msgBar.style.backgroundColor = "#e1f5fe";
-                morePart.classList.add('active-target');
-            }
-
-            // --- 步驟 4: 點擊動詞片語 (Tells more part) ---
-            else if (step === 4 && clickedType === 'more') {
-                morePart.classList.add('black-oval');
-                morePart.classList.remove('active-target');
-
-                // 完成所有步驟
-                step = 5;
-                finishActivity();
-            }
+            // ... (請將原本的邏輯貼回這裡，並加入 logData) ...
+            
+            // 修改最後的 finishActivity
         }
 
         function finishActivity() {
-            // 1. 顯示成功訊息
-            msgBar.innerText = "Great job! You analyzed the sentence!";
-            msgBar.style.backgroundColor = "#b9f6ca"; // 成功綠色
-            msgBar.style.color = "#00600f";
-
-            // 2. 亮起右側規則文字
-            rulesArea.style.opacity = "1";
+            document.getElementById('msg-bar').innerText = "Great job! You analyzed the sentence!";
+            document.getElementById('msg-bar').style.backgroundColor = "#b9f6ca";
+            document.getElementById('rules-area').style.opacity = "1";
+            
+            logData('Complete', 'All steps finished');
+            
+            // 顯示下一步按鈕
+            document.getElementById('next-activity-btn').style.display = 'block';
         }
 
+        function goToNext() {
+            logData('Navigation', 'Go to Sentence Building');
+            window.location.href = 'sentence_building.html';
+        }
     </script>
 </body>
 </html>
