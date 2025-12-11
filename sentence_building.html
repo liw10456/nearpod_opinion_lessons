@@ -264,6 +264,7 @@
                 userColor = input.value.trim();
             }
             
+            // 這裡 Result 不用改，因為這只是輸入
             logData('Input Color', userColor);
             document.getElementById('start-modal').style.display = 'none';
             initWordBank();
@@ -364,7 +365,8 @@
                 if (currentSentence[4].toLowerCase() !== userColor.toLowerCase()) isCorrect = false;
 
                 if (isCorrect) {
-                    logData('Check Order', 'Correct Sentence Constructed');
+                    // 修改處：Result 改為 Correct
+                    logData('Check Order', 'Correct');
                     slots.forEach(slot => slot.style.backgroundColor = "#e6fffa");
                     
                     doneBtn.textContent = "FINISH ALL ACTIVITIES!";
@@ -374,7 +376,8 @@
                         alert("Congratulations! You have completed the entire lesson.");
                     };
                 } else {
-                    logData('Check Order', 'Incorrect Order');
+                    // 修改處：Result 改為 Incorrect
+                    logData('Check Order', 'Incorrect');
                     slots.forEach(slot => slot.style.backgroundColor = "#fff0f0");
                     doneBtn.style.display = "none";
                 }
