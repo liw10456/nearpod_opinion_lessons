@@ -1,3 +1,227 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Structure Analysis</title>
+    <style>
+        /* --- 1. Font Embedding --- */
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Century Gothic';
+            src: url('centurygothic_bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'Century Gothic', sans-serif;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            user-select: none;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- 2. Sentence Interaction Area --- */
+        .sentence-display {
+            font-size: 90px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            cursor: default;
+        }
+
+        /* Interactive Component Base Styles */
+        .interactive-span {
+            display: inline-block;
+            padding: 5px 2px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Hint State */
+        .interactive-span.active-target {
+            cursor: pointer;
+        }
+        .interactive-span.active-target:hover {
+            background-color: #eef9ff;
+        }
+
+        /* --- Completed Styles --- */
+        
+        /* Blue Box */
+        .blue-box {
+            border: 5px solid #0070c0;
+            padding: 0 5px;
+            margin: 0 2px;
+        }
+
+        /* Black Underline */
+        .black-underline {
+            border-bottom: 8px solid black;
+            border-radius: 0;
+        }
+
+        /* Black Oval */
+        .black-oval {
+            border: 5px solid black;
+            border-radius: 50% / 100%;
+            padding: 5px 25px;
+            margin: 0 10px;
+        }
+
+        /* --- 3. Content Area --- */
+        .content-area {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 50px;
+        }
+
+        /* Image Box */
+        .image-box {
+            width: 400px;
+            height: 300px;
+            border: 2px solid #eee;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Rules Text */
+        .rules-container {
+            flex: 1;
+            max-width: 550px;
+            opacity: 0.2;
+            transition: opacity 0.5s;
+        }
+
+        .rules-header {
+            color: #0070c0;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-list li {
+            font-size: 28px;
+            color: #000;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .rules-list li::before {
+            content: "•";
+            color: #000;
+            font-weight: bold;
+            display: inline-block; 
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        /* Emphasis */
+        .emphasis {
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        /* --- 4. Instruction Bar --- */
+        .instruction-bar {
+            position: fixed;
+            bottom: 30px;
+            background-color: #fff9c4;
+            border: 3px solid #fbc02d;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            animation: bounceIn 0.6s;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        
+        <div class="sentence-display">
+            <span id="who-part" class="interactive-span" onclick="handleClick('who')">
+                <span id="cap-part" class="interactive-span" onclick="event.stopPropagation(); handleClick('cap')">T</span>he boy
+            </span>
+            
+            &nbsp; <span id="more-part" class="interactive-span" onclick="handleClick('more')">wears a hat</span><span id="punc-part" class="interactive-span" onclick="handleClick('punc')">.</span>
+        </div>
+
+        <div class="content-area">
+            <div class="image-box">
+                <img src="boy_walking.jpg" alt="Boy Walking Illustration" onerror="this.style.display='none'; this.parentNode.innerText='[Image: boy_walking.jpg]'">
+            </div>
+
+            <div class="rules-container" id="rules-area">
+                <div class="rules-header">This is a complete sentence.</div>
+                <ul class="rules-list">
+                    <li>It makes sense - tells <span class="emphasis">who</span> and tells more.</li>
+                    <li>It begins with a capital letter.</li>
+                    <li>There are spaces between the words.</li>
+                    <li>It ends with punctuation.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="instruction-bar" id="msg-bar">
+        Step 1: Touch the capital letter.
+    </div>
+    
+    <button id="next-activity-btn" onclick="goToNext()" style="display:none; position: fixed; bottom: 30px; right: 30px; padding: 15px 30px; background: #000080; color: white; border: none; border-radius: 50px; font-size: 20px; cursor: pointer; z-index: 200;">
+        Next Activity ➜
+    </button>
+
 <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
         const studentId = localStorage.getItem('studentId') || 'Anonymous';
@@ -81,3 +305,5 @@
             window.location.href = 'sentence_building.html';
         }
     </script>
+</body>
+</html>
