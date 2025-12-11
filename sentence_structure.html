@@ -251,7 +251,9 @@
             if (step === 1 && clickedType === 'cap') {
                 capPart.classList.add('blue-box');
                 capPart.classList.remove('active-target');
-                logData('Step 1', 'Found Capital Letter');
+                
+                // 修改處：Result 統一為 Correct
+                logData('Step 1: Find Capital Letter', 'Correct');
                 
                 step = 2;
                 msgBar.innerText = "Step 2: Touch the punctuation at the end.";
@@ -263,7 +265,9 @@
             else if (step === 2 && clickedType === 'punc') {
                 puncPart.classList.add('blue-box');
                 puncPart.classList.remove('active-target');
-                logData('Step 2', 'Found Punctuation');
+                
+                // 修改處：Result 統一為 Correct
+                logData('Step 2: Find Punctuation', 'Correct');
 
                 step = 3;
                 msgBar.innerText = "Step 3: Underline the naming part (Who).";
@@ -275,7 +279,9 @@
             else if (step === 3 && clickedType === 'who') {
                 whoPart.classList.add('black-underline');
                 whoPart.classList.remove('active-target');
-                logData('Step 3', 'Found Who Part');
+                
+                // 修改處：Result 統一為 Correct
+                logData('Step 3: Find Who Part', 'Correct');
 
                 step = 4;
                 msgBar.innerText = "Step 4: Circle the telling part (Tells more).";
@@ -287,7 +293,9 @@
             else if (step === 4 && clickedType === 'more') {
                 morePart.classList.add('black-oval');
                 morePart.classList.remove('active-target');
-                logData('Step 4', 'Found Telling Part');
+                
+                // 修改處：Result 統一為 Correct
+                logData('Step 4: Find Telling Part', 'Correct');
 
                 step = 5;
                 finishActivity();
@@ -299,7 +307,7 @@
             msgBar.style.backgroundColor = "#b9f6ca";
             document.getElementById('rules-area').style.opacity = "1";
             
-            logData('Complete', 'Activity Finished');
+            logData('Activity Status', 'Complete');
             
             // Show next button
             document.getElementById('next-activity-btn').style.display = 'block';
