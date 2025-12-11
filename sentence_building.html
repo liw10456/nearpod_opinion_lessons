@@ -1,259 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentence Building Activity</title>
-    <style>
-        /* --- 1. Font Embedding --- */
-        @font-face {
-            font-family: 'Century Gothic';
-            src: url('centurygothic.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Century Gothic';
-            src: url('centurygothic_bold.ttf') format('truetype');
-            font-weight: bold;
-            font-style: normal;
-        }
-
-        body {
-            font-family: 'Century Gothic', sans-serif;
-            background-color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            user-select: none;
-            overflow-x: hidden;
-        }
-
-        /* --- 2. Title Styles --- */
-        h1 {
-            font-size: 60px;
-            font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 40px;
-            color: #000;
-            text-align: center;
-        }
-
-        .highlight {
-            background-color: #00ff00;
-            padding: 0 10px;
-            display: inline-block;
-        }
-
-        /* --- 3. Game Board --- */
-        .game-board {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 60px;
-            flex-wrap: wrap;
-        }
-
-        .slot-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .slot {
-            width: 160px;
-            height: 140px;
-            border: 5px solid black;
-            background-color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .slot:hover {
-            background-color: #f7f7f7;
-        }
-
-        .slot-text {
-            font-size: 40px;
-            font-weight: bold;
-            pointer-events: none;
-        }
-
-        .number-badge {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            font-weight: bold;
-            color: black;
-        }
-
-        .badge-1 { background-color: #ff33cc; color: white; }
-        .badge-2 { background-color: #ffcc00; }
-        .badge-3 { background-color: #99ccff; }
-        .badge-4 { background-color: #ccff66; }
-        .badge-5 { background-color: #cc99ff; color: white; }
-
-        /* --- 4. Word Bank --- */
-        .word-bank {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 20px;
-            background-color: #f0f0f0;
-            border-radius: 15px;
-            min-height: 100px;
-            width: 80%;
-            max-width: 900px;
-        }
-
-        .word-card {
-            background-color: white;
-            border: 3px solid #333;
-            padding: 15px 30px;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 8px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.1s, border-color 0.2s;
-        }
-
-        .word-card:active {
-            transform: scale(0.95);
-        }
-
-        .word-card.selected {
-            border-color: #ff9900;
-            background-color: #fff8e1;
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
-        }
-
-        /* --- 5. Modal --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal-box {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            font-family: 'Century Gothic', sans-serif;
-        }
-
-        .modal-title {
-            font-size: 32px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .color-input {
-            font-size: 24px;
-            padding: 10px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            width: 200px;
-            text-align: center;
-            font-family: 'Century Gothic', sans-serif;
-        }
-
-        .start-btn {
-            display: block;
-            margin: 20px auto 0;
-            font-size: 24px;
-            padding: 10px 30px;
-            background-color: #00ff00;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            font-family: 'Century Gothic', sans-serif;
-        }
-        .start-btn:hover { background-color: #00cc00; }
-
-        /* --- 6. Done Button --- */
-        .done-btn {
-            margin-top: 30px;
-            font-size: 24px;
-            padding: 15px 40px;
-            background-color: #00aaff;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            display: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-    </style>
-</head>
-<body>
-
-    <div class="modal-overlay" id="start-modal">
-        <div class="modal-box">
-            <div class="modal-title">What is your favorite color?</div>
-            <input type="text" id="user-color-input" class="color-input" placeholder="e.g. Blue" autocomplete="off">
-            <button class="start-btn" onclick="startGame()">Start!</button>
-        </div>
-    </div>
-
-    <h1>What is your <span class="highlight">favorite color</span>?</h1>
-
-    <div class="game-board">
-        <div class="slot-container">
-            <div class="slot" onclick="placeWord(0)"></div>
-            <div class="number-badge badge-1">1</div>
-        </div>
-        <div class="slot-container">
-            <div class="slot" onclick="placeWord(1)"></div>
-            <div class="number-badge badge-2">2</div>
-        </div>
-        <div class="slot-container">
-            <div class="slot" onclick="placeWord(2)"></div>
-            <div class="number-badge badge-3">3</div>
-        </div>
-        <div class="slot-container">
-            <div class="slot" onclick="placeWord(3)"></div>
-            <div class="number-badge badge-4">4</div>
-        </div>
-        <div class="slot-container">
-            <div class="slot" onclick="placeWord(4)"></div>
-            <div class="number-badge badge-5">5</div>
-        </div>
-    </div>
-
-    <div class="word-bank" id="word-bank">
-        </div>
-
-    <button class="done-btn" id="done-btn">DONE ✔</button>
-
-    <script>
+<script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
         const studentId = localStorage.getItem('studentId') || 'Anonymous';
         let selectedWordElement = null;
         let userColor = "Blue";
 
-        function logData(action, result) {
-            const data = { studentId: studentId, activity: 'Sentence Building', action: action, result: result };
+        function logData(action, result, isCorrect) {
+            const data = { 
+                studentId: studentId, 
+                activity: 'Sentence Building', 
+                action: action, 
+                result: result,
+                isCorrect: isCorrect 
+            };
             fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
                 .catch(err => console.error('Log Error:', err));
         }
@@ -263,9 +21,7 @@
             if (input.value.trim() !== "") {
                 userColor = input.value.trim();
             }
-            
-            // 這裡 Result 不用改，因為這只是輸入
-            logData('Input Color', userColor);
+            logData('Input Color', userColor, 'N/A'); // 輸入顏色沒有對錯
             document.getElementById('start-modal').style.display = 'none';
             initWordBank();
         }
@@ -273,13 +29,10 @@
         function initWordBank() {
             const bank = document.getElementById('word-bank');
             let words = ["My", "favorite", "color", "is", userColor];
-            
-            // Shuffle
             for (let i = words.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [words[i], words[j]] = [words[j], words[i]];
             }
-
             words.forEach(word => {
                 const div = document.createElement('div');
                 div.className = 'word-card';
@@ -313,15 +66,12 @@
                     createCardInBank(oldWordDiv.textContent);
                     targetSlot.innerHTML = '';
                 }
-
                 const textDiv = document.createElement('div');
                 textDiv.className = 'slot-text';
                 textDiv.textContent = selectedWordElement.textContent;
                 targetSlot.appendChild(textDiv);
-
                 selectedWordElement.remove();
                 selectedWordElement = null;
-
                 checkSentence();
             } else {
                 if (targetSlot.children.length > 0) {
@@ -365,19 +115,19 @@
                 if (currentSentence[4].toLowerCase() !== userColor.toLowerCase()) isCorrect = false;
 
                 if (isCorrect) {
-                    // 修改處：Result 改為 Correct
-                    logData('Check Order', 'Correct');
+                    // 這裡記錄 Yes
+                    logData('Check Order', 'Correct Sentence', 'Yes');
                     slots.forEach(slot => slot.style.backgroundColor = "#e6fffa");
                     
                     doneBtn.textContent = "FINISH ALL ACTIVITIES!";
                     doneBtn.style.display = "block";
                     doneBtn.onclick = function() {
-                        logData('Session', 'Lesson Completed');
+                        logData('Session', 'Lesson Completed', 'Yes');
                         alert("Congratulations! You have completed the entire lesson.");
                     };
                 } else {
-                    // 修改處：Result 改為 Incorrect
-                    logData('Check Order', 'Incorrect');
+                    // 這裡記錄 No
+                    logData('Check Order', 'Incorrect Order', 'No');
                     slots.forEach(slot => slot.style.backgroundColor = "#fff0f0");
                     doneBtn.style.display = "none";
                 }
@@ -387,5 +137,3 @@
             }
         }
     </script>
-</body>
-</html>
