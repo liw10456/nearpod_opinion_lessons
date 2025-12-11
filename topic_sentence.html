@@ -216,48 +216,47 @@
     </div>
 
     <script>
-        // *** 設定：請貼上你的 Google Apps Script 網址 ***
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
-        const studentId = localStorage.getItem('studentId') || 'Anonymous';
-
-        function logData(action, result) {
-            const data = { studentId: studentId, activity: 'Topic Sentence', action: action, result: result };
-            fetch(SCRIPT_URL, {
-                method: 'POST', mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-        }
-
-        function checkAnswer(element, isCorrect) {
-            const options = document.querySelectorAll('.option-item');
-            options.forEach(opt => opt.classList.remove('correct'));
-            const answerDisplay = document.getElementById('final-answer');
-            const arrow = document.getElementById('arrow');
-            
-            // 記錄學生的選擇
-            logData('Select Option', element.textContent.trim() + " (" + (isCorrect ? "Correct" : "Incorrect") + ")");
-
-            if (isCorrect) {
-                element.classList.add('correct');
-                answerDisplay.textContent = element.textContent.trim();
-            } else {
-                answerDisplay.textContent = "";
-                arrow.style.display = 'none';
-                alert("Try again!");
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
+            const studentId = localStorage.getItem('studentId') || 'Anonymous';
+    
+            function logData(action, result) {
+                const data = { studentId: studentId, activity: 'Topic Sentence', action: action, result: result };
+                fetch(SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
             }
-        }
-
-        function goToNextPage() {
-            const answerDisplay = document.getElementById('final-answer');
-            if (answerDisplay.textContent !== "") {
-                logData('Navigation', 'Go to Sentence Structure');
-                // 跳轉到下一個檔案
-                window.location.href = "sentence_structure.html"; 
-            } else {
-                alert("Please select the correct topic sentence first.");
+    
+            function checkAnswer(element, isCorrect) {
+                const options = document.querySelectorAll('.option-item');
+                options.forEach(opt => opt.classList.remove('correct'));
+                const answerDisplay = document.getElementById('final-answer');
+                const arrow = document.getElementById('arrow');
+                
+                // --- 修改處：Action 記錄選了什麼，Result 只記錄 Correct/Incorrect ---
+                const userChoice = element.textContent.trim();
+                logData('Selected: ' + userChoice, isCorrect ? 'Correct' : 'Incorrect');
+    
+                if (isCorrect) {
+                    element.classList.add('correct');
+                    answerDisplay.textContent = userChoice;
+                } else {
+                    answerDisplay.textContent = "";
+                    arrow.style.display = 'none';
+                    alert("Try again!");
+                }
             }
-        }
+    
+            function goToNextPage() {
+                const answerDisplay = document.getElementById('final-answer');
+                if (answerDisplay.textContent !== "") {
+                    logData('Navigation', 'Go to Sentence Structure');
+                    window.location.href = "sentence_structure.html"; 
+                } else {
+                    alert("Please select the correct topic sentence first.");
+                }
+            }
     </script>
 </body>
 </html>
