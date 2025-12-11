@@ -1,262 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topic Sentence Activity</title>
-    <style>
-        /* --- 1. 字體設定 --- */
-        @font-face {
-            font-family: 'Century Gothic';
-            src: url('centurygothic.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Century Gothic';
-            src: url('centurygothic_bold.ttf') format('truetype');
-            font-weight: bold;
-            font-style: normal;
-        }
+<script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
+        const studentId = localStorage.getItem('studentId') || 'Anonymous';
 
-        body {
-            font-family: 'Century Gothic', sans-serif;
-            background-color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px;
-            user-select: none;
+        // 修改 logData 增加 isCorrect 參數
+        function logData(action, result, isCorrect) {
+            const data = { 
+                studentId: studentId, 
+                activity: 'Topic Sentence', 
+                action: action, 
+                result: result,
+                isCorrect: isCorrect // 第六欄
+            };
+            fetch(SCRIPT_URL, {
+                method: 'POST', mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
         }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-        }
-
-        /* --- 2. 標題與問題 --- */
-        h1 {
-            font-family: 'Century Gothic', sans-serif;
-            font-weight: bold;
-            font-size: 48px;
-            margin-bottom: 20px;
-            color: #000;
-        }
-
-        p.question {
-            font-size: 28px;
-            line-height: 1.4;
-            color: #000;
-            margin-bottom: 40px;
-        }
-
-        /* --- 3. 選項區域 --- */
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 50px;
-        }
-
-        .option-item {
-            font-size: 32px;
-            padding: 15px 30px;
-            border: 4px solid transparent; /* 預留邊框位置 */
-            cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .option-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* 正確答案被選中時的樣式 (綠色粗框) */
-        .option-item.correct {
-            border: 5px solid #008000;
-            background-color: #fff;
-        }
-
-        /* --- 4. 底部答案區 (T: Box) --- */
-        .answer-box-container {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            border: 2px solid #999;
-            height: 100px;
-            position: relative;
-            padding-right: 120px; /* 留位置給按鈕 */
-        }
-
-        .t-label {
-            font-size: 60px;
-            font-weight: bold;
-            color: #008000; /* 綠色 T: */
-            margin-left: 20px;
-            margin-right: 20px;
-            line-height: 1;
-        }
-
-        .answer-display {
-            font-size: 32px;
-            font-weight: bold;
-            color: #008000; /* 答案也是綠色 */
-            flex-grow: 1;
-            padding-left: 10px;
-        }
-
-        /* --- 5. Done 按鈕樣式 --- */
-        .done-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s;
-        }
-
-        .done-btn:active {
-            transform: translateY(-50%) scale(0.95);
-        }
-
-        /* 藍色圓圈圖示 */
-        .done-icon {
-            width: 50px;
-            height: 50px;
-            background-color: #00aaff; /* 亮藍色 */
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            /* 內部模擬一圈白環的效果 */
-            border: 4px solid #cceeff; 
-        }
-
-        .checkmark {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .done-text {
-            color: #ccc;
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-
-        /* --- 箭頭動畫 (選中時出現) --- */
-        .arrow-indicator {
-            position: absolute;
-            width: 4px;
-            height: 60px;
-            background-color: #008000;
-            left: 50%;
-            top: -70px; /* 位於答案框上方 */
-            display: none; /* 預設隱藏 */
-        }
-        .arrow-indicator::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: -8px;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 15px solid #008000;
-        }
-
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <h1>Write about a pediatrician.</h1>
-
-        <p class="question">
-            What is the best <strong>topic sentence</strong> that we can use to introduce our writing?
-        </p>
-
-        <div class="options-list">
-            <div class="option-item" onclick="checkAnswer(this, false)">
-                I like to play outside.
-            </div>
+        function checkAnswer(element, isCorrect) {
+            const options = document.querySelectorAll('.option-item');
+            options.forEach(opt => opt.classList.remove('correct'));
+            const answerDisplay = document.getElementById('final-answer');
+            const arrow = document.getElementById('arrow');
             
-            <div class="option-item" id="correct-opt" onclick="checkAnswer(this, true)">
-                A pediatrician is a doctor.
-            </div>
+            const userChoice = element.textContent.trim();
             
-            <div class="option-item" onclick="checkAnswer(this, false)">
-                My doctor's office is close to my house.
-            </div>
-        </div>
-
-        <div class="answer-box-container">
-            <div class="arrow-indicator" id="arrow"></div>
-
-            <div class="t-label">T:</div>
-            <div class="answer-display" id="final-answer"></div>
-
-            <button class="done-btn" onclick="goToNextPage()">
-                <div class="done-icon">
-                    <span class="checkmark">✔</span>
-                </div>
-                <div class="done-text">DONE</div>
-            </button>
-        </div>
-    </div>
-
-    <script>
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwr_vi5RnGrsvkHCEM6SQt63_ThvZ8QH_fv91731LJdFzdCBAcED6jandGo1oOl79hosA/exec';
-            const studentId = localStorage.getItem('studentId') || 'Anonymous';
-    
-            function logData(action, result) {
-                const data = { studentId: studentId, activity: 'Topic Sentence', action: action, result: result };
-                fetch(SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+            // 這裡判斷 Yes 或 No
+            if (isCorrect) {
+                logData('Select Option', userChoice, 'Yes');
+                element.classList.add('correct');
+                answerDisplay.textContent = userChoice;
+            } else {
+                logData('Select Option', userChoice, 'No');
+                answerDisplay.textContent = "";
+                arrow.style.display = 'none';
+                alert("Try again!");
             }
-    
-            function checkAnswer(element, isCorrect) {
-                const options = document.querySelectorAll('.option-item');
-                options.forEach(opt => opt.classList.remove('correct'));
-                const answerDisplay = document.getElementById('final-answer');
-                const arrow = document.getElementById('arrow');
-                
-                // --- 修改處：Action 記錄選了什麼，Result 只記錄 Correct/Incorrect ---
-                const userChoice = element.textContent.trim();
-                logData('Selected: ' + userChoice, isCorrect ? 'Correct' : 'Incorrect');
-    
-                if (isCorrect) {
-                    element.classList.add('correct');
-                    answerDisplay.textContent = userChoice;
-                } else {
-                    answerDisplay.textContent = "";
-                    arrow.style.display = 'none';
-                    alert("Try again!");
-                }
+        }
+
+        function goToNextPage() {
+            const answerDisplay = document.getElementById('final-answer');
+            if (answerDisplay.textContent !== "") {
+                logData('Navigation', 'Go to Sentence Structure', 'N/A');
+                window.location.href = "sentence_structure.html"; 
+            } else {
+                alert("Please select the correct topic sentence first.");
             }
-    
-            function goToNextPage() {
-                const answerDisplay = document.getElementById('final-answer');
-                if (answerDisplay.textContent !== "") {
-                    logData('Navigation', 'Go to Sentence Structure');
-                    window.location.href = "sentence_structure.html"; 
-                } else {
-                    alert("Please select the correct topic sentence first.");
-                }
-            }
+        }
     </script>
-</body>
-</html>
