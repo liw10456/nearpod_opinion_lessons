@@ -299,8 +299,9 @@
             <div class="card-visual topic-visual">🗣️⭐️</div>
         </div>
         <div class="card" onclick="selectCard(event, this)">
-            <div class="card-title">Punctuation</div>
-            <div class="card-visual text-visual">. <span class="serif-I">!</span> ?</div>
+            <div><img src="punctuation.png" /></div>
+            <!-- <div class="card-title">Punctuation</div>
+            <div class="card-visual text-visual">. <span class="serif-I">!</span> ?</div> -->
         </div>
     </div>
 
@@ -387,10 +388,7 @@
         }
         
         // --- 4. Initialization ---
-        window.onload = function() {
-            // 自動登入檢查 (我先將其註解掉，以便你測試看到 Login Panel)
-            // 如果你希望之後自動隱藏，請取消下面這行的註解:
-            
+        window.onload = function() {            
             /* if(localStorage.getItem('studentId')) {
                 studentId = localStorage.getItem('studentId');
                 document.getElementById('login-overlay').style.display = 'none';
